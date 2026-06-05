@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>香港深圳 · 行程總覽</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Noto+Serif+TC:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A96E;
+    --gold-light: #E8D5B0;
+    --gold-pale: #F7F0E3;
+    --ink: #1C1A17;
+    --ink-soft: #8A8278;
+    --cream: #FAF7F2;
+    --cream-dark: #F0EBE1;
+    --border: rgba(201,169,110,0.25);
+    --border-strong: rgba(201,169,110,0.5);
+    --white: #FFFFFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Noto Serif TC', serif; background: var(--cream); color: var(--ink); min-height: 100vh; }
+
+  .page-header { background: var(--ink); color: var(--gold-light); padding: 3rem 2.5rem 2.5rem; position: relative; overflow: hidden; }
+  .page-header::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(201,169,110,0.04) 40px, rgba(201,169,110,0.04) 41px); }
+  .header-inner { position: relative; max-width: 900px; margin: 0 auto; }
+  .trip-label { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.18em; color: var(--gold); text-transform: uppercase; margin-bottom: 0.75rem; }
+  .trip-title { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 600; line-height: 1.15; color: #F7F0E3; margin-bottom: 1rem; }
+  .trip-meta { display: flex; gap: 2rem; flex-wrap: wrap; font-size: 13px; color: var(--ink-soft); font-family: 'DM Mono', monospace; }
+  .trip-meta span { color: var(--gold-light); }
+  .divider-gold { width: 48px; height: 1.5px; background: var(--gold); margin: 1.25rem 0; }
+
+  .day-nav { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 2rem; position: sticky; top: 0; z-index: 100; display: flex; overflow-x: auto; }
+  .day-nav a { display: inline-flex; align-items: center; padding: 0.9rem 0.9rem; font-family: 'DM Mono', monospace; font-size: 10.5px; letter-spacing: 0.05em; color: var(--ink-soft); text-decoration: none; border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
+  .day-nav a:hover { color: var(--gold); border-bottom-color: var(--gold); }
+
+  .content { max-width: 900px; margin: 0 auto; padding: 2.5rem 2.5rem 4rem; }
+  .section { margin-bottom: 3rem; }
+  .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 1.25rem; }
+  .section-tag { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); background: var(--gold-pale); border: 1px solid var(--border); padding: 3px 10px; border-radius: 2px; }
+  .section-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 400; color: var(--ink); }
+
+  /* INFO ROWS */
+  .info-box { background: var(--white); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-bottom: 1rem; }
+  .info-row { display: grid; grid-template-columns: 130px 1fr; border-bottom: 1px solid var(--border); min-height: 44px; }
+  .info-row:last-child { border-bottom: none; }
+  .info-label { background: var(--cream-dark); padding: 0.75rem 1rem 0.75rem; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); display: flex; align-items: flex-start; padding-top: 0.9rem; }
+  .info-value { padding: 0.75rem 1.25rem; font-size: 13.5px; color: var(--ink); line-height: 1.6; }
+  .muted { color: var(--ink-soft); font-size: 12px; }
+  .gold-text { color: #A07830; font-weight: 500; }
+
+  /* BADGES */
+  .flight-badge { display: inline-block; background: var(--ink); color: var(--gold); font-family: 'DM Mono', monospace; font-size: 12px; padding: 2px 10px; border-radius: 2px; letter-spacing: 0.1em; margin-right: 6px; }
+  .time-badge { display: inline-block; background: var(--gold-pale); color: var(--ink); font-family: 'DM Mono', monospace; font-size: 12px; padding: 2px 10px; border-radius: 2px; margin: 2px 4px 2px 0; }
+  .arrow { color: var(--gold); margin: 0 6px; }
+  .conf { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink-soft); }
+
+  /* HOTEL CARD */
+  .hotel-card { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-bottom: 1rem; background: var(--white); }
+  .hotel-summary { display: flex; align-items: center; gap: 12px; padding: 1rem 1.25rem; cursor: pointer; user-select: none; transition: background 0.15s; }
+  .hotel-summary:hover { background: var(--gold-pale); }
+  .hotel-name { font-size: 14px; font-weight: 500; color: var(--ink); }
+  .hotel-sub { font-size: 12px; color: var(--ink-soft); margin-top: 2px; font-family: 'DM Mono', monospace; }
+  .hotel-dates { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink-soft); text-align: right; flex-shrink: 0; }
+  .hotel-detail { display: none; border-top: 1px solid var(--border); }
+  .hotel-detail.open { display: block; }
+
+  /* DAY BLOCKS */
+  .day-header { background: var(--ink); color: var(--gold-light); padding: 0.9rem 1.5rem; border-radius: 4px 4px 0 0; display: flex; align-items: baseline; gap: 1rem; font-family: 'Playfair Display', serif; }
+  .day-number { font-size: 1.9rem; font-weight: 600; color: var(--gold); line-height: 1; }
+  .day-info { font-size: 1rem; opacity: 0.85; }
+  .day-subtitle { font-size: 0.78rem; font-family: 'DM Mono', monospace; color: var(--ink-soft); margin-top: 2px; }
+  .card-group { border: 1px solid var(--border); border-top: none; border-radius: 0 0 6px 6px; background: var(--white); overflow: hidden; margin-bottom: 1.5rem; }
+
+  /* ITINERARY */
+  .itinerary-list { list-style: none; }
+  .itinerary-item { border-bottom: 1px solid var(--border); }
+  .itinerary-item:last-child { border-bottom: none; }
+  .item-summary { display: flex; align-items: center; gap: 10px; padding: 0.75rem 1.25rem; cursor: pointer; user-select: none; transition: background 0.15s; }
+  .item-summary:hover { background: var(--gold-pale); }
+  .item-time { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink-soft); min-width: 45px; }
+  .item-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+  .item-name { flex: 1; font-size: 13.5px; color: var(--ink); line-height: 1.4; }
+  .item-chip { font-family: 'DM Mono', monospace; font-size: 10px; padding: 2px 8px; border-radius: 2px; letter-spacing: 0.06em; flex-shrink: 0; }
+  .chip-transport { background: #E6F1FB; color: #0C447C; }
+  .chip-hotel { background: var(--gold-pale); color: #A07830; border: 1px solid var(--border); }
+  .chip-meal { background: #EAF3DE; color: #3B6D11; }
+  .chip-shopping { background: #F1EFE8; color: #5F5E5A; }
+  .chip-pickup { background: #FAEEDA; color: #854F0B; }
+  .expand-icon { font-size: 12px; color: var(--gold); flex-shrink: 0; transition: transform 0.2s; }
+  .expand-icon.open { transform: rotate(180deg); }
+
+  /* DETAIL PANEL */
+  .item-detail { display: none; background: var(--cream); border-top: 1px solid var(--border); }
+  .item-detail.open { display: block; }
+  .detail-grid { display: grid; grid-template-columns: 100px 1fr; font-size: 12.5px; }
+  .detail-key { padding: 0.5rem 0.75rem 0.5rem 2.5rem; color: var(--ink-soft); font-family: 'DM Mono', monospace; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; padding-top: 0.65rem; }
+  .detail-val { padding: 0.5rem 1.25rem; color: var(--ink); line-height: 1.6; border-bottom: 1px solid var(--border); }
+  .detail-key:last-of-type, .detail-val:last-child { border-bottom: none; }
+
+  /* TRANSPORT */
+  .transport-card { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-bottom: 1rem; background: var(--white); }
+  .transport-header { background: var(--cream-dark); padding: 0.6rem 1.25rem; display: flex; align-items: center; gap: 10px; }
+  .transport-title { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.1em; color: var(--ink-soft); text-transform: uppercase; flex: 1; }
+  .tb-hk { background: #E6F1FB; color: #0C447C; font-family: 'DM Mono', monospace; font-size: 10px; padding: 2px 8px; border-radius: 2px; }
+  .tb-tw { background: #EAF3DE; color: #3B6D11; font-family: 'DM Mono', monospace; font-size: 10px; padding: 2px 8px; border-radius: 2px; }
+  .tb-self { background: #FBEAF0; color: #72243E; font-family: 'DM Mono', monospace; font-size: 10px; padding: 2px 8px; border-radius: 2px; }
+
+  /* NOTE / REMARK BOXES */
+  .note-box { background: #FAEEDA; border-left: 3px solid #EF9F27; padding: 0.75rem 1.25rem; font-size: 13px; color: #633806; border-radius: 0 4px 4px 0; margin: 1rem; line-height: 1.6; }
+  .remark-box { background: #FCEBEB; border-left: 3px solid #E24B4A; padding: 1rem 1.25rem; font-size: 13.5px; color: #501313; border-radius: 0 4px 4px 0; line-height: 1.7; margin-bottom: 1rem; }
+  .remark-box strong { font-weight: 500; display: block; margin-bottom: 0.25rem; font-size: 14px; }
+
+  /* COST TABLE */
+  .cost-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  .cost-table th { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--ink-soft); padding: 0.6rem 1rem; text-align: left; border-bottom: 1px solid var(--border-strong); background: var(--cream-dark); }
+  .cost-table td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.5; }
+  .cost-table tr:last-child td { border-bottom: none; }
+  .cost-table .amount { font-family: 'DM Mono', monospace; text-align: right; white-space: nowrap; }
+
+  .page-footer { text-align: center; padding: 2rem; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink-soft); letter-spacing: 0.1em; border-top: 1px solid var(--border); }
+
+  @media (max-width: 600px) {
+    .content { padding: 1.5rem 1rem 3rem; }
+    .page-header { padding: 2rem 1rem; }
+    .info-row { grid-template-columns: 90px 1fr; }
+    .detail-grid { grid-template-columns: 80px 1fr; }
+    .hotel-dates { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="header-inner">
+    <div class="trip-label">Travel Itinerary · 2026</div>
+    <h1 class="trip-title">深圳 · 香港<br>三日行程</h1>
+    <div class="divider-gold"></div>
+    <div class="trip-meta">
+      <div>日期 <span>6月7日 — 6月9日</span></div>
+      <div>班機 <span>CI903 / CI924</span></div>
+      <div>人員 <span>Nancy + Adrian</span></div>
+    </div>
+  </div>
+</header>
+
+<nav class="day-nav">
+  <a href="#flights">✈ 班機</a>
+  <a href="#hotels">🏨 住宿</a>
+  <a href="#itinerary">📅 行程</a>
+  <a href="#transport">🚗 用車</a>
+  <a href="#remarks">⚠️ 備注</a>
+  <a href="#costs">費用</a>
+</nav>
+
+<main class="content">
+
+<!-- ══════════════════════════
+     01 · 班機
+══════════════════════════ -->
+<section class="section" id="flights">
+  <div class="section-header">
+    <span class="section-tag">01</span>
+    <h2 class="section-title">班機</h2>
+  </div>
+  <div class="info-box">
+    <div class="info-row">
+      <div class="info-label">去程</div>
+      <div class="info-value">
+        <span class="flight-badge">CI903</span>
+        <span class="time-badge">08:00</span>
+        <span class="arrow">→</span>
+        <span class="time-badge">10:05</span>
+        <span class="muted">&nbsp;台北桃園 T1 → 香港 T1 · 飛行 2h05m · 6月7日</span><br>
+        <span class="muted">免費行李：每人 2 件託運</span>
+      </div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">回程</div>
+      <div class="info-value">
+        <span class="flight-badge">CI924</span>
+        <span class="time-badge">21:15</span>
+        <span class="arrow">→</span>
+        <span class="time-badge">23:10</span>
+        <span class="muted">&nbsp;香港 T1 → 台北桃園 T1 · 飛行 1h55m · 6月9日</span><br>
+        <span class="muted">免費行李：每人 2 件託運</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     02 · 住宿
+══════════════════════════ -->
+<section class="section" id="hotels">
+  <div class="section-header">
+    <span class="section-tag">02</span>
+    <h2 class="section-title">住宿</h2>
+  </div>
+
+  <div class="hotel-card">
+    <div class="hotel-summary" onclick="toggleEl(this)">
+      <div style="flex:1;">
+        <div class="hotel-name">文華東方酒店 深圳</div>
+        <div class="hotel-sub">Mandarin Oriental Shenzhen · Club Skyline View Room · King · 70㎡</div>
+      </div>
+      <div class="hotel-dates">6/7 – 6/8 · 1晚</div>
+      <span class="expand-icon">▼</span>
+    </div>
+    <div class="hotel-detail">
+      <div class="info-row">
+        <div class="info-label">地址</div>
+        <div class="info-value">深圳市福田區皇崗路5001號深業上城A座</div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">電話</div>
+        <div class="info-value">+86-755-88026888</div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">確認號</div>
+        <div class="info-value"><span class="conf">36052SG110dgi</span></div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">入退房</div>
+        <div class="info-value">
+          <span class="time-badge">入住 12:00</span><span class="muted">（視情況）</span>&nbsp;
+          <span class="time-badge">退房 6/8</span><span class="muted">保證延遲至 16:00</span>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">專屬禮遇</div>
+        <div class="info-value gold-text">
+          每日二客早餐 · 視房況升等 · 早 12:00 入住 · 延遲退房至 16:00<br>
+          每次住宿 USD $100 餐飲抵用金（依飯店指定使用）
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">取消政策</div>
+        <div class="info-value" style="color:#A32D2D;">抵達前 1 日取消</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hotel-card">
+    <div class="hotel-summary" onclick="toggleEl(this)">
+      <div style="flex:1;">
+        <div class="hotel-name">瑰麗酒店 香港</div>
+        <div class="hotel-sub">Rosewood Hong Kong · Club Premier Harbour View Room · King · 53㎡</div>
+      </div>
+      <div class="hotel-dates">6/8 – 6/9 · 1晚</div>
+      <span class="expand-icon">▼</span>
+    </div>
+    <div class="hotel-detail">
+      <div class="info-row">
+        <div class="info-label">地址</div>
+        <div class="info-value">香港九龍尖沙咀梳士巴利道18號</div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">電話</div>
+        <div class="info-value">+852-3891-8888</div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">確認號</div>
+        <div class="info-value"><span class="conf">6222SG764jed</span></div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">入退房</div>
+        <div class="info-value">
+          <span class="time-badge">入住 12:00</span><span class="muted">（視情況）</span>&nbsp;
+          <span class="time-badge">退房 6/9 16:00</span><span class="muted">保證延遲至 16:00</span>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">專屬禮遇</div>
+        <div class="info-value gold-text">
+          每日二客早餐 · 視房況升等 · 早 12:00 入住 · 延遲退房至 16:00<br>
+          USD $100 Property Credit（依飯店指定使用）
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">取消政策</div>
+        <div class="info-value" style="color:#A32D2D;">抵達前 1 日取消</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     03 · 行程
+══════════════════════════ -->
+<section class="section" id="itinerary">
+  <div class="section-header">
+    <span class="section-tag">03</span>
+    <h2 class="section-title">行程</h2>
+  </div>
+
+  <!-- DAY 1 -->
+  <div class="day-header" id="day1">
+    <div class="day-number">01</div>
+    <div>
+      <div class="day-info">6月7日（週日）· 台北 → 深圳</div>
+      <div class="day-subtitle">桃園機場出發 · 入住文華東方 深圳</div>
+    </div>
+  </div>
+  <div class="card-group">
+    <ul class="itinerary-list">
+
+      <li class="itinerary-item">
+        <div class="item-summary" onclick="toggleEl(this)">
+          <span class="item-time">08:00</span><span class="item-dot"></span>
+          <span class="item-name">CI903 起飛 · 台北桃園 → 香港</span>
+          <span class="item-chip chip-transport">班機</span>
+          <span class="expand-icon">▼</span>
+        </div>
+        <div class="item-detail">
+          <div class="detail-grid">
+            <span class="detail-key">出發</span>
+            <span class="detail-val">08:00 · 桃園國際機場 T1</span>
+            <span class="detail-key">抵達</span>
+            <span class="detail-val">10:05 · 香港國際機場 T1</span>
+          </div>
+        </div>
+      </li>
+
+      <li class="itinerary-item">
+        <div class="item-summary" onclick="toggleEl(this)">
+          <span class="item-time">10:05</span><span class="item-dot"></span>
+          <span class="item-name">接送 · 香港機場 → 深圳文華東方</span>
+          <span class="item-chip chip-transport">接送</span>
+          <span class="expand-icon">▼</span>
+        </div>
+        <div class="item-detail">
+          <div class="detail-grid">
+            <span class="detail-key">車程</span>
+            <span class="detail-val">約 1 – 1.5 小時</span>
+            <span class="detail-key">目的地</span>
+            <span class="detail-val">深圳市福田區皇崗路5001號深業上城A座<br>+86-755-88026888</span>
+          </div>
+        </div>
+      </li>
+
+      <li class="itinerary-item">
+        <div class="item-summary" onclick="toggleEl(this)">
+          <span class="item-time">12:30</span><span class="item-dot"></span>
+          <span class="item-name">抵達 · 文華東方深圳辦理入住</span>
+          <span class="item-chip chip-hotel">飯店</span>
+          <span class="expand-icon">▼</span>
+        </div>
+        <div class="item-detail">
+          <div class="detail-grid">
+            <span class="detail-key">地址</span>
+            <span class="detail-val">深圳市福田區皇崗路5001號深業上城A座</span>
+            <span class="detail-key">電話</span>
+            <span class="detail-val">+86-755-88026888</span>
+          </div>
+        </div>
+      </li>
+
+      <li class="itinerary-item">
+        <div class="item-summary" onclick="toggleEl(this)">
+          <span class="item-time">13:00</span><span class="item-dot"></span>
+          <span class="item-name">午餐 · 東灣（飯店內）</span>
+          <span class="item-chip chip-meal">餐飲</span>
+          <span class="expand-icon">▼</span>
+        </div>
+        <div class="item-detail">
+          <div class="detail-grid">
+            <span class="detail-key">預訂</span>
+            <span class="detail-val">兩份玻璃乳鴿（已預訂）· 桌號 A1</span>
+            <span class="detail-key">電話</span>
+            <span class="detail-val">+86 139 2523 4541</span>
+            <span class="detail-key">位置</span>
+            <span class="detail-val">2樓酒店落客區對面，搭乘東灣專屬電梯至1樓（直接詢問在場人員）</span>
+          </div>
+        </div>
+      </li>
+
+      <li class="itinerary-item">
+        <div class="item-summary" onclick="toggleEl(this)">
+          <span class="item-time">下午</span><span class="item-dot"></span>
+          <span class="item-name">自由行程 · 深業上城 / 購物</span>
+          <span class="item-chip chip-shopping">購物</span>
+          <span class="expand-icon">▼</span>
+        </div>
+        <div class="item-detail">
+          <div class="detail-grid">
+            <span class="detail-key">推薦</span>
+            <span class="detail-val">
+              深業上城（UpperHills）—— 酒店樓下<br>
+              One Avenue 卓悅中心 —— 車程約 15 分鐘<br>
+              深圳灣萬象城（一線大牌）—— 建議搭地鐵，避免堵車
+            </span>
+          </div>
+        </div>
+      </li>
+
+    </ul>
+    <div class="note-box">晚餐自理；若前往深圳灣萬象城，建議搭乘地鐵以避免塞車。</div>
+  </div>
+
+  <!-- DAY 2 -->
+  <div class="day-header" id="day2">
+    <div class="day-number">02</div>
+    <div>
+      <div class="day-info">6月8日（週一）· 深圳 → 香港</div>
+      <div class="day-subtitle">轉往瑰麗 · 購物 · 取蝴蝶酥</div>
+    </div>
+  </div>
+  <div class="card-group">
+    <ul class="itinerary-list">
+
+      <li class="itinerary-item">
+        <div class="item-summary" onclick="toggleEl(this)">
+          <span class="item-time">早餐</span><span class="item-dot"></span>
+          <span class="item-name">飯店早餐（文華東方）</span>
+          <span class="item-chip chip-meal">餐飲</span>
+          <span class="expand-icon">▼</span>
+        </div>
+        <div class="item-detail">
+          <div class="detail-grid">
+            <span class="detail-key">說明</span>
+            <span class="detail-val">Amex Centurion 禮遇 · 每日二客早餐</span>
+          </div>
+        </div>
+      </li>
+
+      <li class="itinerary-item">
+        <div class="item-summary" onclick="toggleEl(this)">
+          <span class="item-time">11:00</span><span class="item-dot"></span>
+          <span class="item-name">退房 · 接送深圳文華東方 → 香港瑰麗</span>
+          <span class="item-chip chip-transport">接送</span>
+          <span class="expand-icon">▼</span>
+        </div>
+        <div class="item-detail">
+          <div class="detail-grid">
+            <span class="detail-key">出發地</span>
+            <span class="detail-val">深圳市福田區皇崗路5001號深業上城A座<br>+86-755-88026888</span>
+            <span class="detail-key">目的地</span>
+            <span class="detail-val">香港九龍尖沙咀梳士巴利道18號（瑰麗酒店）<br>+852-3891-8888</span>
+            <span class="detail-key">預計抵達</span>
+            <span class="detail-val">12:30 · 已備註 Early Check-in</span>
+          </div>
+        </div>
+      </li>
+
+      <li class="itinerary-item">
+        <div class="item-summary" onclick="toggleEl(this)">
+          <span class="item-time">午餐</span><span class="item-dot"></span>
+          <span class="item-name">午餐 · 尖沙咀精選（擇一）</span>
+          <span class="item-chip chip-meal">餐飲</span>
+          <span class="expand-icon">▼</span>
+        </div>
+        <div class="item-detail">
+          <div style="padding:0.75rem 1.25rem 0.75rem 2.5rem;">
+            <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+              <thead>
+                <tr style="border-bottom:1px solid var(--border);">
+                  <th style="text-align:left;padding:0.4rem 0.75rem 0.4rem 0;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-soft);font-weight:400;">餐廳</th>
+                  <th style="text-align:left;padding:0.4rem 0.75rem;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-soft);font-weight:400;">類型</th>
+                  <th style="text-align:left;padding:0.4rem 0.75rem;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-soft);font-weight:400;">步行</th>
+                  <th style="text-align:left;padding:0.4rem 0;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-soft);font-weight:400;">訂位</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom:1px solid var(--border);">
+                  <td style="padding:0.5rem 0.75rem 0.5rem 0;font-weight:500;">Bakehouse 蛋撻</td>
+                  <td style="padding:0.5rem 0.75rem;color:var(--ink-soft);">糕點</td>
+                  <td style="padding:0.5rem 0.75rem;font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-soft);">15 分鐘</td>
+                  <td style="padding:0.5rem 0;color:var(--ink-soft);font-size:12px;">不可訂位</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--border);">
+                  <td style="padding:0.5rem 0.75rem 0.5rem 0;font-weight:500;">祥興記上海生煎包</td>
+                  <td style="padding:0.5rem 0.75rem;color:var(--ink-soft);">街頭點心</td>
+                  <td style="padding:0.5rem 0.75rem;font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-soft);">15 分鐘</td>
+                  <td style="padding:0.5rem 0;color:var(--ink-soft);font-size:12px;">不可訂位</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--border);">
+                  <td style="padding:0.5rem 0.75rem 0.5rem 0;font-weight:500;">紅茶冰室</td>
+                  <td style="padding:0.5rem 0.75rem;color:var(--ink-soft);">茶餐廳</td>
+                  <td style="padding:0.5rem 0.75rem;font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-soft);">15 分鐘</td>
+                  <td style="padding:0.5rem 0;color:var(--ink-soft);font-size:12px;">不可訂位</td>
+                </tr>
+                <tr>
+                  <td style="padding:0.5rem 0.75rem 0.5rem 0;font-weight:500;">蘭芳園</td>
+                  <td style="padding:0.5rem 0.75rem;color:var(--ink-soft);">茶餐廳</td>
+                  <td style="padding:0.5rem 0.75rem;font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-soft);">11 分鐘</td>
+                  <td style="padding:0.5rem 0;color:var(--ink-soft);font-size:12px;">不可訂位</td>
+                </tr>
+              </tbody>
+            </table>
+            <p style="font-size:11px;color:var(--ink-soft);margin-top:0.5rem;font-family:'DM Mono',monospace;">步行時間以瑰麗酒店為起點估算</p>
+          </div>
+        </div>
+      </li>
+
+      <li class="itinerary-item">
+        <div class="item-summary" onclick="toggleEl(this)">
+          <span class="item-time">下午</span><span class="item-dot"></span>
+          <span class="item-name">購物 · Goyard 半島商場</span>
+          <span class="item-chip chip-shopping">購物</span>
+          <span class="expand-icon">▼</span>
+        </div>
+        <div class="item-detail">
+          <div class="detail-grid">
+            <span class="detail-key">地址</span>
+            <span class="detail-val">香港半島商場 地下 E1 號舖（步行約 5 分鐘）</span>
+          </div>
+        </div>
+      </li>
+
+      <li class="itinerary-item">
+        <div class="item-summary" onclick="toggleEl(this)">
+          <span class="item-time">17:00</span><span class="item-dot"></span>
+          <span class="item-name">前往帝苑酒店取蝴蝶酥</span>
+          <span class="item-chip chip-pickup">取貨</span>
+          <span class="expand-icon">▼</span>
+        </div>
+        <div class="item-detail">
+          <div class="detail-grid">
+            <span class="detail-key">地址</span>
+            <span class="detail-val">香港九龍尖東麼地道69號（帝苑酒店）<br>步行約 9 分鐘（從瑰麗出發）</span>
+            <span class="detail-key">取貨時間</span>
+            <span class="detail-val">17:00 – 20:00</span>
+            <span class="detail-key">訂單號</span>
+            <span class="detail-val"><span class="conf">#953133</span></span>
+            <span class="detail-key">內容</span>
+            <span class="detail-val">$538 Cookies Set × 2（含 3 × 4 入蝴蝶酥禮盒）</span>
+          </div>
+        </div>
+      </li>
+
+    </ul>
+  </div>
+
+  <!-- DAY 3 -->
+  <div class="day-header" id="day3">
+    <div class="day-number">03</div>
+    <div>
+      <div class="day-info">6月9日（週二）· 香港 → 台北</div>
+      <div class="day-subtitle">銅鑼灣購物 · 返台</div>
+    </div>
+  </div>
+  <div class="card-group">
+    <ul class="itinerary-list">
+
+      <li class="itinerary-item">
+        <div class="item-summary" onclick="toggleEl(this)">
+          <span class="item-time">早餐</span><span class="item-dot"></span>
+          <span class="item-name">飯店早餐（瑰麗）</span>
+          <span class="item-chip chip-meal">餐飲</span>
+          <span class="expand-icon">▼</span>
+        </div>
+        <div class="item-detail">
+          <div class="detail-grid">
+            <span class="detail-key">說明</span>
+            <span class="detail-val">Amex Centurion 禮遇 · 每日 Buffet 早餐（最多二客）</span>
+          </div>
+        </div>
+      </li>
+
+      <li class="itinerary-item">
+        <div class="item-summary" onclick="toggleEl(this)">
+          <span class="item-time">上午</span><span class="item-dot"></span>
+          <span class="item-name">購物 · SUBDUDE（銅鑼灣）</span>
+          <span class="item-chip chip-shopping">購物</span>
+          <span class="expand-icon">▼</span>
+        </div>
+        <div class="item-detail">
+          <div class="detail-grid">
+            <span class="detail-key">地址</span>
+            <span class="detail-val">香港銅鑼灣啓超道6號地下<br>（對面即是希慎廣場 Apple Store）</span>
+            <span class="detail-key">交通</span>
+            <span class="detail-val">港鐵銅鑼灣站 F1 出口</span>
+          </div>
+        </div>
+      </li>
+
+      <li class="itinerary-item">
+        <div class="item-summary" onclick="toggleEl(this)">
+          <span class="item-time">10:00</span><span class="item-dot"></span>
+          <span class="item-name">Brandy Melville 旗艦店</span>
+          <span class="item-chip chip-shopping">購物</span>
+          <span class="expand-icon">▼</span>
+        </div>
+        <div class="item-detail">
+          <div class="detail-grid">
+            <span class="detail-key">地址</span>
+            <span class="detail-val">灣仔霎東街15號 OLIV 地下至3樓<br>（銅鑼灣時代廣場 Lane Crawford 正後方）</span>
+            <span class="detail-key">交通</span>
+            <span class="detail-val">港鐵銅鑼灣站 A 出口</span>
+          </div>
+        </div>
+      </li>
+
+      <li class="itinerary-item">
+        <div class="item-summary" onclick="toggleEl(this)">
+          <span class="item-time">16:00</span><span class="item-dot"></span>
+          <span class="item-name">退房 · 前往機場（Centurion Lounge）</span>
+          <span class="item-chip chip-transport">接送</span>
+          <span class="expand-icon">▼</span>
+        </div>
+        <div class="item-detail">
+          <div class="detail-grid">
+            <span class="detail-key">退房</span>
+            <span class="detail-val">瑰麗酒店 · 香港九龍尖沙咀梳士巴利道18號<br>+852-3891-8888</span>
+            <span class="detail-key">貴賓室</span>
+            <span class="detail-val">Amex Centurion Lounge · 香港國際機場 T1<br><span style="color:var(--ink-soft);font-size:12px;">近 60 號登機閘口</span></span>
+          </div>
+        </div>
+      </li>
+
+      <li class="itinerary-item">
+        <div class="item-summary" onclick="toggleEl(this)">
+          <span class="item-time">19:15</span><span class="item-dot"></span>
+          <span class="item-name">CI924 報到 · 香港 → 台北</span>
+          <span class="item-chip chip-transport">班機</span>
+          <span class="expand-icon">▼</span>
+        </div>
+        <div class="item-detail">
+          <div class="detail-grid">
+            <span class="detail-key">起飛</span>
+            <span class="detail-val">21:15 · 香港國際機場 T1</span>
+            <span class="detail-key">抵達</span>
+            <span class="detail-val">23:10 · 台北桃園 T1</span>
+          </div>
+        </div>
+      </li>
+
+    </ul>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     04 · 用車
+══════════════════════════ -->
+<section class="section" id="transport">
+  <div class="section-header">
+    <span class="section-tag">04</span>
+    <h2 class="section-title">用車</h2>
+  </div>
+
+  <!-- 台灣段送機 -->
+  <div class="transport-card">
+    <div class="transport-header">
+      <span class="transport-title">台灣 · 送機（去程）</span>
+      <span class="tb-tw">AE 安排</span>
+    </div>
+    <div class="info-row">
+      <div class="info-label">日期</div>
+      <div class="info-value">6月7日（週日）</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">出發時間</div>
+      <div class="info-value">05:00</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">出發地址</div>
+      <div class="info-value">寧XXXX2號</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">目的地</div>
+      <div class="info-value">桃園國際機場 T1（報到時間 06:00）</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">車輛</div>
+      <div class="info-value">轎車 · 兩位</div>
+    </div>
+  </div>
+
+  <!-- 香港段 -->
+  <div class="transport-card">
+    <div class="transport-header">
+      <span class="transport-title">香港 · 跨境接送（第一程）</span>
+      <span class="tb-hk">阿法安排</span>
+    </div>
+    <div class="info-row">
+      <div class="info-label">日期</div>
+      <div class="info-value">6月7日（週日）</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">接機時間</div>
+      <div class="info-value">10:05（CI903 降落時間）</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">路線</div>
+      <div class="info-value">香港國際機場 T1 → 深圳文華東方<br><span class="muted">車程約 1 – 1.5 小時</span></div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">費用</div>
+      <div class="info-value">RMB 600（已付訂金 RMB 200）</div>
+    </div>
+  </div>
+
+  <div class="transport-card">
+    <div class="transport-header">
+      <span class="transport-title">香港 · 跨境接送（第二程）</span>
+      <span class="tb-hk">阿法安排</span>
+    </div>
+    <div class="info-row">
+      <div class="info-label">日期</div>
+      <div class="info-value">6月8日（週一）</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">出發時間</div>
+      <div class="info-value">11:00（退房後）</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">路線</div>
+      <div class="info-value">深圳文華東方 → 香港瑰麗酒店<br><span class="muted">車程約 1 – 1.5 小時</span></div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">費用</div>
+      <div class="info-value">RMB 600</div>
+    </div>
+  </div>
+
+  <!-- 台灣段接機 -->
+  <div class="transport-card">
+    <div class="transport-header">
+      <span class="transport-title">台灣 · 接機（回程）</span>
+      <span class="tb-self">Adrian 自行安排</span>
+    </div>
+    <div class="info-row">
+      <div class="info-label">日期</div>
+      <div class="info-value">6月9日（週二）</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">抵達時間</div>
+      <div class="info-value">23:10 · 桃園國際機場 T1</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     05 · 備注
+══════════════════════════ -->
+<section class="section" id="remarks">
+  <div class="section-header">
+    <span class="section-tag">05</span>
+    <h2 class="section-title">備注</h2>
+  </div>
+  <div class="remark-box">
+    <strong>⚠️ 請再次確認台胞證</strong>
+    前往深圳需持有效台胞證，出發前請確認證件效期與資料無誤。
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     06 · 費用總結
+══════════════════════════ -->
+<section class="section" id="costs">
+  <div class="section-header">
+    <span class="section-tag">06</span>
+    <h2 class="section-title">費用總結</h2>
+  </div>
+  <div style="background:var(--white);border:1px solid var(--border);border-radius:6px;overflow:hidden;">
+    <table class="cost-table">
+      <thead>
+        <tr>
+          <th style="width:28%">項目</th>
+          <th>說明</th>
+          <th class="amount">金額</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>住宿 · 深圳</strong></td>
+          <td>文華東方 · 6/7 – 6/8 · 1晚</td>
+          <td class="amount">≈ CNY 5,340</td>
+        </tr>
+        <tr>
+          <td><strong>住宿 · 香港</strong></td>
+          <td>瑰麗酒店 · 6/8 – 6/9 · 1晚</td>
+          <td class="amount">≈ HKD 10,622</td>
+        </tr>
+        <tr>
+          <td><strong>跨境接送</strong></td>
+          <td>阿法 · 機場→深圳 + 深圳→香港（不開發票）</td>
+          <td class="amount">≈ RMB 1,200</td>
+        </tr>
+        <tr>
+          <td><strong>帝苑蝴蝶酥</strong></td>
+          <td>$538 Cookies Set × 2 · 訂單 #953133<br>6/8 17:00 – 20:00 取貨</td>
+          <td class="amount">HKD 1,076</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</main>
+
+<footer class="page-footer">PRIVATE · FOR TRAVEL USE ONLY · 2026 深圳 · 香港</footer>
+
+<script>
+function toggleEl(el) {
+  const d = el.nextElementSibling;
+  const i = el.querySelector('.expand-icon');
+  const o = d.classList.contains('open');
+  d.classList.toggle('open', !o);
+  i.classList.toggle('open', !o);
+}
+</script>
+</body>
+</html>

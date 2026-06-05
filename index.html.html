@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Travel Planner · 旅行紀錄</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ─── RESET & BASE ─────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --sky0: #c5e8f8; --sky1: #74b8e0; --sky2: #1a4a7a;
+  --earth0: #7ac94e; --earth1: #4a9030; --earth2: #245c14;
+  --ocean: #3a9ad9;
+  --panel-bg: rgba(8,6,22,0.92);
+  --panel-border: rgba(255,255,255,0.1);
+  --card-bg: rgba(255,255,255,0.06);
+  --card-hover: rgba(255,255,255,0.13);
+  --text-bright: #f0e8d0;
+  --text-mid: #c8b8a8;
+  --text-dim: #807060;
+  --accent: #d4aa60;
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+}
+html, body { height: 100%; }
+body {
+  font-family: var(--font-body);
+  background: #0a0814;
+  color: var(--text-bright);
+  overflow-x: hidden;
+}
+
+/* ─── MAIN VIEW ────────────────────────────────────── */
+#main-view {
+  width: 100%; min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 32px 16px 60px;
+  position: relative;
+}
+
+/* Starfield background */
+#main-view::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(100,140,200,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 80%, rgba(60,80,140,0.1) 0%, transparent 60%),
+    #0a0814;
+  z-index: -1;
+}
+
+.stars {
+  position: fixed; inset: 0; z-index: -1;
+  background-image:
+    radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 25% 35%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 40% 10%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 55% 28%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 8%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 85% 20%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 92% 40%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 15% 55%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 60% 50%, rgba(255,255,255,0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 75% 60%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 5% 80%, rgba(255,255,255,0.25) 0%, transparent 100%),
+    radial-gradient(1px 1px at 45% 75%, rgba(255,255,255,0.2) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 88% 72%, rgba(255,255,255,0.35) 0%, transparent 100%),
+    radial-gradient(1px 1px at 33% 90%, rgba(255,255,255,0.25) 0%, transparent 100%),
+    radial-gradient(1px 1px at 66% 88%, rgba(255,255,255,0.2) 0%, transparent 100%);
+}
+
+/* Header */
+.site-header {
+  text-align: center;
+  margin-bottom: 32px;
+  animation: fadeDown 0.9s ease both;
+}
+.eyebrow {
+  font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 10px; opacity: 0.8;
+}
+.site-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 300; color: var(--text-bright);
+  letter-spacing: 0.06em; line-height: 1;
+}
+.site-subtitle {
+  font-size: 12px; color: var(--text-dim);
+  margin-top: 10px; letter-spacing: 0.12em;
+}
+.divider-ornament {
+  display: flex; align-items: center; gap: 12px;
+  margin: 14px auto 0; width: 160px;
+}
+.divider-ornament::before, .divider-ornament::after {
+  content: ''; flex: 1; height: 0.5px; background: var(--accent); opacity: 0.35;
+}
+.divider-ornament span { color: var(--accent); font-size: 10px; opacity: 0.6; }
+
+/* Scene */
+#scene {
+  width: 100%; max-width: 720px;
+  border-radius: 20px; overflow: hidden;
+  position: relative;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 0 0.5px rgba(255,255,255,0.06);
+  animation: fadeUp 1s ease 0.2s both;
+}
+#scene svg { width: 100%; height: auto; display: block; }
+
+/* Landmarks */
+.landmark {
+  cursor: pointer;
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  transition: filter 0.2s;
+}
+.landmark:hover { filter: drop-shadow(0 0 8px rgba(255,220,120,0.5)) brightness(1.15); }
+.lm-g {
+  transform-box: fill-box;
+  transform-origin: bottom center;
+}
+
+/* Drawer */
+#drawer {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: var(--panel-bg);
+  border-top: 0.5px solid var(--panel-border);
+  padding: 20px 24px 24px;
+  transform: translateY(100%);
+  transition: transform 0.45s cubic-bezier(.22,1,.36,1);
+  z-index: 20;
+  backdrop-filter: blur(12px);
+}
+#drawer.open { transform: translateY(0); }
+#drawer-header {
+  display: flex; align-items: baseline;
+  justify-content: space-between; margin-bottom: 16px;
+}
+#drawer-title {
+  font-family: var(--font-display);
+  font-size: 22px; font-weight: 400;
+  color: var(--text-bright); letter-spacing: 0.04em;
+}
+#drawer-close {
+  background: none; border: none;
+  color: var(--text-dim); font-size: 16px;
+  cursor: pointer; line-height: 1; padding: 4px 6px;
+  transition: color 0.15s;
+}
+#drawer-close:hover { color: var(--text-bright); }
+.trip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
+.trip-card {
+  background: var(--card-bg);
+  border: 0.5px solid var(--panel-border);
+  border-radius: 8px; padding: 10px 14px;
+  font-size: 13px; color: var(--text-mid);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  display: flex; align-items: center; gap: 10px;
+}
+.trip-card:hover { background: var(--card-hover); color: var(--text-bright); border-color: rgba(255,255,255,0.2); }
+.trip-card a { color: inherit; text-decoration: none; display: contents; }
+.trip-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.trip-arrow { margin-left: auto; opacity: 0.35; font-size: 12px; }
+
+/* Labels */
+.lbl { pointer-events: none; opacity: 0; transition: opacity 0.18s; }
+.lbl.show { opacity: 1; }
+
+/* Hint text */
+.hint-text {
+  margin-top: 16px;
+  font-size: 11px; color: var(--text-dim);
+  letter-spacing: 0.1em; text-align: center;
+  animation: fadeUp 1s ease 1.5s both;
+}
+
+/* Admin toggle */
+#admin-toggle {
+  position: fixed; bottom: 20px; right: 20px;
+  width: 38px; height: 38px;
+  background: rgba(20,15,35,0.85);
+  border: 0.5px solid rgba(255,255,255,0.12);
+  border-radius: 50%; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--text-dim);
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+  backdrop-filter: blur(8px);
+  z-index: 100;
+}
+#admin-toggle:hover { color: var(--text-bright); border-color: rgba(255,255,255,0.3); background: rgba(30,20,50,0.95); }
+
+/* ─── ADMIN VIEW ───────────────────────────────────── */
+#admin-view {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(5,4,15,0.96);
+  z-index: 200;
+  overflow-y: auto;
+  backdrop-filter: blur(4px);
+}
+#admin-view.open { display: block; }
+
+.admin-container {
+  max-width: 780px; margin: 0 auto;
+  padding: 32px 24px 60px;
+}
+.admin-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 28px; padding-bottom: 16px;
+  border-bottom: 0.5px solid rgba(255,255,255,0.1);
+}
+.admin-title {
+  font-family: var(--font-display);
+  font-size: 26px; font-weight: 300;
+  color: var(--text-bright);
+}
+.admin-title span { color: var(--accent); }
+#admin-close {
+  background: none; border: 0.5px solid rgba(255,255,255,0.15);
+  border-radius: 6px; color: var(--text-dim); font-size: 13px;
+  padding: 6px 14px; cursor: pointer; font-family: var(--font-body);
+  transition: color 0.15s, border-color 0.15s;
+}
+#admin-close:hover { color: var(--text-bright); border-color: rgba(255,255,255,0.3); }
+
+/* Admin tabs */
+.atabs { display: flex; gap: 0; margin-bottom: 24px; border-bottom: 0.5px solid rgba(255,255,255,0.1); }
+.atab {
+  padding: 9px 18px; font-size: 13px; cursor: pointer;
+  color: var(--text-dim); border-bottom: 1.5px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+  letter-spacing: 0.04em;
+}
+.atab.active { color: var(--text-bright); border-bottom-color: var(--accent); }
+.atab:hover:not(.active) { color: var(--text-mid); }
+.apanel { display: none; }
+.apanel.active { display: block; }
+
+/* Destination rows */
+.dest-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.dest-row {
+  display: grid;
+  grid-template-columns: 36px 1fr 74px 74px 80px 64px;
+  align-items: center; gap: 10px;
+  background: rgba(255,255,255,0.04);
+  border: 0.5px solid rgba(255,255,255,0.08);
+  border-radius: 8px; padding: 10px 14px;
+  transition: border-color 0.15s;
+}
+.dest-row:hover { border-color: rgba(255,255,255,0.16); }
+.dest-row.editing { border-color: rgba(180,150,80,0.6); background: rgba(180,150,80,0.06); }
+.drag-h { cursor: grab; color: var(--text-dim); font-size: 16px; text-align: center; user-select: none; }
+.dest-name-cell .dn { font-size: 13px; font-weight: 500; color: var(--text-bright); }
+.dest-name-cell .dm { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+.coord-b {
+  font-size: 11px; color: var(--text-dim);
+  background: rgba(255,255,255,0.05);
+  border-radius: 4px; padding: 3px 6px;
+  text-align: center; font-family: monospace;
+}
+.color-dot-label { display: flex; align-items: center; gap: 6px; }
+.color-dot-label .dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.color-dot-label span { font-size: 10px; color: var(--text-dim); font-family: monospace; }
+.row-acts { display: flex; gap: 4px; justify-content: flex-end; }
+.btn-ic {
+  width: 28px; height: 28px;
+  background: rgba(255,255,255,0.05);
+  border: 0.5px solid rgba(255,255,255,0.1);
+  border-radius: 6px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; transition: background 0.12s;
+}
+.btn-ic:hover { background: rgba(255,255,255,0.12); }
+.btn-ic.danger:hover { background: rgba(180,40,40,0.25); border-color: rgba(220,80,80,0.4); }
+
+/* Edit panel */
+.edit-panel {
+  background: rgba(255,255,255,0.03);
+  border: 0.5px solid rgba(180,150,80,0.3);
+  border-radius: 10px; padding: 20px;
+  margin-top: 14px; margin-bottom: 16px;
+}
+.edit-panel h3 {
+  font-family: var(--font-display);
+  font-size: 17px; font-weight: 400;
+  color: var(--text-bright); margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 0.5px solid rgba(255,255,255,0.08);
+}
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-full { grid-column: 1 / -1; }
+.field label {
+  font-size: 10px; color: var(--text-dim);
+  display: block; margin-bottom: 5px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+.field input, .field select {
+  width: 100%; padding: 8px 11px; font-size: 13px;
+  border: 0.5px solid rgba(255,255,255,0.12);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.05);
+  color: var(--text-bright);
+  outline: none; font-family: var(--font-body);
+  transition: border-color 0.15s;
+}
+.field input:focus, .field select:focus { border-color: rgba(180,150,80,0.6); }
+.field input::placeholder { color: var(--text-dim); }
+.trip-entry { display: flex; gap: 6px; margin-bottom: 6px; align-items: center; }
+.trip-entry input { flex: 1; }
+.trip-entry .trip-url { font-size: 11px; width: 45%; }
+
+/* Buttons */
+.btn {
+  padding: 8px 16px; border-radius: 6px; font-size: 13px;
+  cursor: pointer; font-family: var(--font-body);
+  border: 0.5px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06); color: var(--text-mid);
+  transition: background 0.12s, color 0.12s;
+}
+.btn:hover { background: rgba(255,255,255,0.12); color: var(--text-bright); }
+.btn.primary {
+  background: rgba(180,150,80,0.25); color: var(--accent);
+  border-color: rgba(180,150,80,0.4);
+}
+.btn.primary:hover { background: rgba(180,150,80,0.4); }
+.btn.sm { padding: 5px 11px; font-size: 12px; }
+.form-actions { display: flex; gap: 8px; margin-top: 16px; justify-content: flex-end; }
+
+/* Swatches & icons */
+.color-swatches { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 6px; }
+.swatch {
+  width: 22px; height: 22px; border-radius: 50%;
+  cursor: pointer; border: 2px solid transparent;
+  transition: border-color 0.12s, transform 0.12s;
+}
+.swatch:hover { transform: scale(1.15); }
+.swatch.selected { border-color: var(--text-bright); }
+.icon-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 6px; }
+.icon-opt {
+  padding: 6px; border: 0.5px solid rgba(255,255,255,0.1);
+  border-radius: 6px; text-align: center; cursor: pointer;
+  font-size: 18px; transition: background 0.12s, border-color 0.12s;
+}
+.icon-opt:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25); }
+.icon-opt.selected { background: rgba(180,150,80,0.2); border-color: rgba(180,150,80,0.5); }
+
+/* Map tab */
+.map-box {
+  border-radius: 10px; overflow: hidden;
+  border: 0.5px solid rgba(255,255,255,0.1);
+  margin-bottom: 10px; background: #1a3a5c;
+  cursor: crosshair;
+}
+.map-box svg { width: 100%; height: auto; display: block; }
+.map-hint { font-size: 12px; color: var(--text-dim); text-align: center; margin-bottom: 10px; }
+.map-coord-out {
+  font-size: 12px; color: var(--accent);
+  text-align: center; min-height: 20px;
+  margin-bottom: 10px; font-family: monospace;
+}
+.map-legend { display: flex; flex-wrap: wrap; gap: 8px; }
+.map-leg-item {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 12px; color: var(--text-dim);
+}
+.map-leg-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* Export tab */
+.export-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.export-header span { font-size: 13px; color: var(--text-dim); }
+textarea#export-code {
+  width: 100%; height: 300px;
+  font-family: monospace; font-size: 12px;
+  padding: 14px; line-height: 1.7;
+  border: 0.5px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.03);
+  color: #8adf9a; resize: vertical; outline: none;
+}
+.status-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 10px; padding-top: 10px;
+  border-top: 0.5px solid rgba(255,255,255,0.08);
+  font-size: 12px; color: var(--text-dim);
+}
+.badge {
+  padding: 2px 9px; border-radius: 10px; font-size: 11px;
+  background: rgba(80,180,80,0.15); color: #80c880;
+  border: 0.5px solid rgba(80,180,80,0.3);
+}
+
+/* ─── ANIMATIONS ───────────────────────────────────── */
+@keyframes fadeDown { from { opacity:0; transform:translateY(-16px);} to {opacity:1;transform:translateY(0);} }
+@keyframes fadeUp   { from { opacity:0; transform:translateY(16px); } to {opacity:1;transform:translateY(0);} }
+@keyframes earthPop {
+  0%   { transform: scale(0.05); opacity:0; }
+  65%  { transform: scale(1.05); opacity:1; }
+  82%  { transform: scale(0.97); }
+  100% { transform: scale(1.0); }
+}
+@keyframes riseUp {
+  from { transform: scaleY(0) translateY(24px); opacity:0; }
+  to   { transform: scaleY(1) translateY(0);    opacity:1; }
+}
+@keyframes floatCloud {
+  0%,100% { transform: translateX(0); }
+  50%      { transform: translateX(9px); }
+}
+@keyframes shimmer {
+  0%,100% { opacity:0.45; }
+  50%      { opacity:0.7; }
+}
+
+#earth-g { transform-box:fill-box; transform-origin:center bottom; animation: earthPop 1.2s cubic-bezier(.34,1.4,.64,1) 0.15s both; }
+#sky-g   { animation: fadeUp 0.8s ease both; }
+#cloud-a { animation: floatCloud 7s ease-in-out infinite; }
+#cloud-b { animation: floatCloud 9s ease-in-out 1.8s infinite; }
+#cloud-c { animation: floatCloud 5.5s ease-in-out 3.2s infinite; }
+.hint-shimmer { animation: shimmer 3s ease-in-out infinite; }
+
+.lm-g { animation: riseUp 0.65s cubic-bezier(.34,1.56,.64,1) both; }
+#g-jp { animation-delay:1.35s; }
+#g-kr { animation-delay:1.55s; }
+#g-eu { animation-delay:1.75s; }
+#g-cn { animation-delay:1.45s; }
+#g-af { animation-delay:1.65s; }
+#g-nz { animation-delay:1.9s; }
+
+/* Password gate */
+#gate {
+  position: fixed; inset: 0; z-index: 500;
+  background: #050410;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 20px;
+  transition: opacity 0.6s ease;
+}
+#gate.hidden { opacity: 0; pointer-events: none; }
+.gate-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  font-weight: 300; color: var(--text-bright);
+  letter-spacing: 0.08em; text-align: center;
+}
+.gate-title em { color: var(--accent); font-style: italic; }
+.gate-sub { font-size: 12px; color: var(--text-dim); letter-spacing: 0.14em; }
+.gate-input-row { display: flex; gap: 8px; margin-top: 8px; }
+#gate-input {
+  padding: 10px 16px; font-size: 14px;
+  border: 0.5px solid rgba(255,255,255,0.15);
+  border-radius: 8px; background: rgba(255,255,255,0.05);
+  color: var(--text-bright); outline: none;
+  font-family: var(--font-body); width: 200px;
+  letter-spacing: 0.08em; text-align: center;
+  transition: border-color 0.2s;
+}
+#gate-input:focus { border-color: rgba(180,150,80,0.6); }
+#gate-input.shake {
+  animation: shake 0.35s ease;
+  border-color: rgba(220,80,80,0.6);
+}
+#gate-btn {
+  padding: 10px 20px; font-size: 13px;
+  border: 0.5px solid rgba(180,150,80,0.4);
+  border-radius: 8px; background: rgba(180,150,80,0.15);
+  color: var(--accent); cursor: pointer;
+  font-family: var(--font-body); letter-spacing: 0.06em;
+  transition: background 0.15s;
+}
+#gate-btn:hover { background: rgba(180,150,80,0.3); }
+.gate-hint { font-size: 11px; color: var(--text-dim); opacity: 0.6; }
+.gate-skip {
+  font-size: 11px; color: var(--text-dim); opacity: 0.45;
+  cursor: pointer; letter-spacing: 0.08em; text-decoration: underline;
+  background: none; border: none; font-family: var(--font-body);
+}
+.gate-skip:hover { opacity: 0.7; }
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%      { transform: translateX(-8px); }
+  40%      { transform: translateX(8px); }
+  60%      { transform: translateX(-5px); }
+  80%      { transform: translateX(5px); }
+}
+</style>
+</head>
+<body>
+
+<div class="stars"></div>
+
+<!-- ── PASSWORD GATE ── -->
+<div id="gate">
+  <div class="gate-title">Travel <em>Planner</em></div>
+  <div class="gate-sub">私人旅行紀錄庫</div>
+  <div class="gate-input-row">
+    <input id="gate-input" type="password" placeholder="通關密語" autocomplete="off"/>
+    <button id="gate-btn" onclick="checkPassword()">進入</button>
+  </div>
+  <div class="gate-hint">提示：預設密碼 travel</div>
+  <button class="gate-skip" onclick="skipGate()">訪客瀏覽（僅限預覽）</button>
+</div>
+
+<!-- ── MAIN VIEW ── -->
+<div id="main-view">
+  <header class="site-header">
+    <div class="eyebrow">Private Collection</div>
+    <h1 class="site-title">旅行紀錄</h1>
+    <div class="site-subtitle">世界在腳下，紀錄在此</div>
+    <div class="divider-ornament"><span>✦</span></div>
+  </header>
+
+  <div id="scene">
+    <svg id="world-svg" viewBox="0 0 720 540" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="gSky" cx="50%" cy="22%" r="78%">
+        <stop offset="0%" stop-color="#c5e8f8"/>
+        <stop offset="55%" stop-color="#74b8e0"/>
+        <stop offset="100%" stop-color="#1a4a7a"/>
+      </radialGradient>
+      <radialGradient id="gEarth" cx="46%" cy="38%" r="62%">
+        <stop offset="0%" stop-color="#7ac94e"/>
+        <stop offset="55%" stop-color="#4a9030"/>
+        <stop offset="100%" stop-color="#245c14"/>
+      </radialGradient>
+      <radialGradient id="gOcean" cx="52%" cy="45%" r="55%">
+        <stop offset="0%" stop-color="#4aaad8"/>
+        <stop offset="100%" stop-color="#1868a8"/>
+      </radialGradient>
+      <radialGradient id="gRim" cx="50%" cy="50%" r="50%">
+        <stop offset="80%" stop-color="rgba(0,0,0,0)"/>
+        <stop offset="100%" stop-color="rgba(0,20,50,0.4)"/>
+      </radialGradient>
+    </defs>
+
+    <g id="sky-g">
+      <rect width="720" height="540" fill="url(#gSky)"/>
+      <ellipse cx="360" cy="540" rx="360" ry="120" fill="#0d2a4a" opacity="0.5"/>
+    </g>
+
+    <!-- Clouds -->
+    <g id="cloud-a">
+      <ellipse cx="128" cy="82" rx="52" ry="19" fill="white" opacity="0.76"/>
+      <ellipse cx="152" cy="70" rx="38" ry="17" fill="white" opacity="0.88"/>
+      <ellipse cx="106" cy="80" rx="30" ry="14" fill="white" opacity="0.66"/>
+    </g>
+    <g id="cloud-b">
+      <ellipse cx="575" cy="66" rx="56" ry="20" fill="white" opacity="0.72"/>
+      <ellipse cx="600" cy="55" rx="40" ry="18" fill="white" opacity="0.85"/>
+      <ellipse cx="550" cy="64" rx="34" ry="15" fill="white" opacity="0.62"/>
+    </g>
+    <g id="cloud-c">
+      <ellipse cx="325" cy="44" rx="38" ry="14" fill="white" opacity="0.62"/>
+      <ellipse cx="344" cy="36" rx="28" ry="13" fill="white" opacity="0.76"/>
+    </g>
+
+    <!-- Earth -->
+    <g id="earth-g">
+      <ellipse cx="360" cy="432" rx="258" ry="94" fill="url(#gOcean)"/>
+      <ellipse cx="360" cy="420" rx="244" ry="83" fill="url(#gEarth)"/>
+      <ellipse cx="360" cy="420" rx="244" ry="83" fill="url(#gRim)"/>
+      <!-- land patches -->
+      <ellipse cx="215" cy="412" rx="76" ry="27" fill="#8cc84e" opacity="0.52"/>
+      <ellipse cx="488" cy="398" rx="82" ry="28" fill="#8cc84e" opacity="0.48"/>
+      <ellipse cx="355" cy="435" rx="58" ry="21" fill="#7ab83e" opacity="0.44"/>
+      <ellipse cx="178" cy="428" rx="45" ry="14" fill="#c8a862" opacity="0.5"/>
+      <ellipse cx="510" cy="415" rx="38" ry="12" fill="#c8a862" opacity="0.42"/>
+      <!-- shadow -->
+      <ellipse cx="360" cy="505" rx="220" ry="26" fill="rgba(0,0,0,0.2)"/>
+    </g>
+
+    <!-- ── LANDMARK: JAPAN / 富士山 ── -->
+    <g class="lm-g" id="g-jp">
+      <g class="landmark" id="lm-jp" onclick="openDest('jp')">
+        <ellipse cx="492" cy="302" rx="40" ry="12" fill="#6a9a48" opacity="0.55"/>
+        <!-- mountain body -->
+        <polygon points="492,228 458,302 526,302" fill="#e8e2da"/>
+        <polygon points="492,228 475,270 509,270" fill="white" opacity="0.9"/>
+        <polygon points="492,228 484,252 500,252" fill="#f8f4f0" opacity="0.78"/>
+        <!-- snow lines -->
+        <line x1="462" y1="290" x2="522" y2="290" stroke="#c8b8a0" stroke-width="1" opacity="0.4"/>
+        <line x1="468" y1="278" x2="516" y2="278" stroke="#c8b8a0" stroke-width="0.7" opacity="0.3"/>
+        <!-- crater / torii colour -->
+        <ellipse cx="492" cy="228" rx="6" ry="4" fill="#cc3838" opacity="0.88"/>
+        <rect x="489" y="218" width="6" height="10" fill="#cc2828" rx="1" opacity="0.85"/>
+        <!-- torii at base -->
+        <line x1="478" y1="302" x2="478" y2="288" stroke="#cc4040" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="487" y1="302" x2="487" y2="288" stroke="#cc4040" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="475" y1="289" x2="490" y2="289" stroke="#cc4040" stroke-width="2" stroke-linecap="round"/>
+        <line x1="476" y1="293" x2="489" y2="293" stroke="#cc4040" stroke-width="1.5" stroke-linecap="round"/>
+      </g>
+      <text class="lbl" id="lbl-jp" x="492" y="316" text-anchor="middle" font-size="10" fill="#f0e8d0" font-family="sans-serif">日本</text>
+    </g>
+
+    <!-- ── LANDMARK: KOREA / 景福宮 ── (hidden) -->
+    <g class="lm-g" id="g-kr" style="display:none;">
+      <g class="landmark" id="lm-kr" onclick="openDest('kr')">
+        <ellipse cx="420" cy="316" rx="28" ry="9" fill="#7aaa50" opacity="0.5"/>
+        <!-- pillar -->
+        <rect x="414" y="258" width="12" height="58" fill="#c8944a" rx="2"/>
+        <!-- floors -->
+        <rect x="404" y="308" width="32" height="6" fill="#b07838" rx="1.5"/>
+        <rect x="403" y="304" width="34" height="5" fill="#c08840" rx="1"/>
+        <rect x="406" y="290" width="28" height="6" fill="#b07838" rx="1.5"/>
+        <rect x="405" y="286" width="30" height="5" fill="#c08840" rx="1"/>
+        <rect x="408" y="274" width="24" height="6" fill="#b07838" rx="1.5"/>
+        <rect x="407" y="270" width="26" height="5" fill="#c08840" rx="1"/>
+        <rect x="410" y="260" width="20" height="5" fill="#963820" rx="2"/>
+        <rect x="412" y="256" width="16" height="5" fill="#832010" rx="1.5"/>
+        <!-- windows -->
+        <rect x="408" y="295" width="5" height="7" fill="rgba(160,200,220,0.5)" rx="1"/>
+        <rect x="427" y="295" width="5" height="7" fill="rgba(160,200,220,0.5)" rx="1"/>
+        <rect x="410" y="279" width="4" height="6" fill="rgba(160,200,220,0.45)" rx="1"/>
+        <rect x="426" y="279" width="4" height="6" fill="rgba(160,200,220,0.45)" rx="1"/>
+      </g>
+      <text class="lbl" id="lbl-kr" x="420" y="330" text-anchor="middle" font-size="10" fill="#f0e8d0" font-family="sans-serif">韓國</text>
+    </g>
+
+    <!-- ── LANDMARK: EUROPE / 艾菲爾鐵塔 ── -->
+    <g class="lm-g" id="g-eu">
+      <g class="landmark" id="lm-eu" onclick="openDest('eu')">
+        <ellipse cx="278" cy="298" rx="30" ry="10" fill="#6a9a48" opacity="0.52"/>
+        <!-- spire -->
+        <rect x="275" y="220" width="6" height="78" fill="#9a9898" rx="1.5"/>
+        <!-- arches L1 -->
+        <path d="M 256,296 Q 256,278 278,270 Q 300,278 300,296 Z" fill="#888888"/>
+        <rect x="256" y="296" width="44" height="6" fill="#888"/>
+        <!-- arches L2 -->
+        <path d="M 262,278 Q 262,264 278,258 Q 294,264 294,278 Z" fill="#8a8a8a"/>
+        <rect x="262" y="278" width="32" height="5" fill="#8a8888"/>
+        <!-- arches L3 -->
+        <path d="M 267,264 Q 267,254 278,250 Q 289,254 289,264 Z" fill="#929090"/>
+        <rect x="267" y="264" width="22" height="4" fill="#909090"/>
+        <!-- platform top -->
+        <rect x="273" y="232" width="10" height="8" fill="#8a8888"/>
+        <!-- flag -->
+        <rect x="275" y="213" width="6" height="10" fill="#8b0000" rx="1"/>
+        <!-- windows -->
+        <rect x="260" y="282" width="7" height="9" fill="rgba(180,210,230,0.5)" rx="1"/>
+        <rect x="273" y="282" width="6" height="9" fill="rgba(180,210,230,0.45)" rx="1"/>
+        <rect x="287" y="282" width="7" height="9" fill="rgba(180,210,230,0.5)" rx="1"/>
+      </g>
+      <text class="lbl" id="lbl-eu" x="278" y="313" text-anchor="middle" font-size="10" fill="#f0e8d0" font-family="sans-serif">歐洲</text>
+    </g>
+
+    <!-- ── LANDMARK: CHINA / 長城 ── -->
+    <g class="lm-g" id="g-cn">
+      <g class="landmark" id="lm-cn" onclick="openDest('cn')">
+        <ellipse cx="356" cy="326" rx="65" ry="11" fill="#7aaa50" opacity="0.42"/>
+        <!-- wall path -->
+        <path d="M 292,322 L 308,306 L 324,314 L 338,300 L 356,310 L 370,298 L 384,306 L 400,296 L 416,304 L 420,318" fill="none" stroke="#7a4418" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M 292,322 L 308,306 L 324,314 L 338,300 L 356,310 L 370,298 L 384,306 L 400,296 L 416,304 L 420,318" fill="none" stroke="#c87840" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M 292,326 L 308,310 L 324,318 L 338,304 L 356,314 L 370,302 L 384,310 L 400,300 L 416,308 L 420,322" fill="none" stroke="#d09050" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- towers -->
+        <rect x="332" y="292" width="12" height="18" fill="#8a4018" rx="1.5" opacity="0.9"/>
+        <rect x="332" y="286" width="12" height="8" fill="#762008" rx="1" opacity="0.88"/>
+        <rect x="333" y="280" width="10" height="7" fill="#641808" rx="1" opacity="0.9"/>
+        <rect x="366" y="290" width="10" height="16" fill="#8a4018" rx="1.5" opacity="0.88"/>
+        <rect x="366" y="284" width="10" height="7" fill="#762008" rx="1" opacity="0.85"/>
+        <!-- battlements -->
+        <rect x="333" y="289" width="2" height="4" fill="#6a3010" rx="0.5"/>
+        <rect x="337" y="289" width="2" height="4" fill="#6a3010" rx="0.5"/>
+        <rect x="341" y="289" width="2" height="4" fill="#6a3010" rx="0.5"/>
+      </g>
+      <text class="lbl" id="lbl-cn" x="356" y="340" text-anchor="middle" font-size="10" fill="#f0e8d0" font-family="sans-serif">中國</text>
+    </g>
+
+    <!-- ── LANDMARK: AFRICA / 金字塔 ── -->
+    <g class="lm-g" id="g-af">
+      <g class="landmark" id="lm-af" onclick="openDest('af')">
+        <ellipse cx="210" cy="358" rx="42" ry="13" fill="#c8a040" opacity="0.5"/>
+        <!-- large pyramid -->
+        <polygon points="210,304 174,358 246,358" fill="#e0b848" opacity="0.96"/>
+        <polygon points="210,304 174,358 246,358" fill="rgba(255,230,80,0.12)"/>
+        <polygon points="210,310 180,358 240,358" fill="#d4a030" opacity="0.55"/>
+        <polygon points="210,320 188,358 232,358" fill="#e8b840" opacity="0.45"/>
+        <polygon points="210,332 196,358 224,358" fill="#f0cc60" opacity="0.4"/>
+        <!-- highlight lines -->
+        <line x1="174" y1="358" x2="210" y2="304" stroke="#f8e08a" stroke-width="0.7" opacity="0.4"/>
+        <line x1="246" y1="358" x2="210" y2="304" stroke="#f8e08a" stroke-width="0.7" opacity="0.4"/>
+        <!-- capstone -->
+        <ellipse cx="210" cy="304" rx="2.5" ry="1.8" fill="white" opacity="0.88"/>
+        <!-- small pyramid -->
+        <polygon points="236,346 222,358 250,358" fill="#d8aa40" opacity="0.7"/>
+        <polygon points="236,346 222,358 250,358" fill="rgba(240,200,60,0.15)"/>
+        <!-- desert sand -->
+        <ellipse cx="210" cy="358" rx="42" ry="7" fill="#c09830" opacity="0.35"/>
+      </g>
+      <text class="lbl" id="lbl-af" x="210" y="373" text-anchor="middle" font-size="10" fill="#f0e8d0" font-family="sans-serif">非洲</text>
+    </g>
+
+    <!-- ── LANDMARK: NEW ZEALAND / 奇異鳥 ── -->
+    <g class="lm-g" id="g-nz">
+      <g class="landmark" id="lm-nz" onclick="openDest('nz')">
+        <ellipse cx="526" cy="372" rx="30" ry="10" fill="#6a9a48" opacity="0.52"/>
+        <!-- fern fronds behind -->
+        <path d="M 510,372 Q 502,358 498,346 Q 502,348 506,360 Q 504,350 508,340" fill="none" stroke="#4a8030" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M 510,372 Q 508,356 514,344" fill="none" stroke="#5a9038" stroke-width="1.2" stroke-linecap="round"/>
+        <!-- kiwi body -->
+        <ellipse cx="526" cy="358" rx="17" ry="20" fill="#5a3818" opacity="0.92"/>
+        <ellipse cx="526" cy="355" rx="14" ry="16" fill="#7a5030" opacity="0.8"/>
+        <ellipse cx="527" cy="352" rx="10" ry="12" fill="#8a6038" opacity="0.68"/>
+        <!-- head -->
+        <ellipse cx="535" cy="340" rx="8" ry="7" fill="#5a3818" opacity="0.92"/>
+        <ellipse cx="535" cy="339" rx="6" ry="5.5" fill="#7a5028" opacity="0.8"/>
+        <!-- eye -->
+        <circle cx="537" cy="338" r="2.2" fill="#1a0c04" opacity="0.92"/>
+        <circle cx="537.6" cy="337.4" r="0.8" fill="white" opacity="0.65"/>
+        <!-- beak -->
+        <path d="M 542,340 Q 550,338 554,342 Q 550,344 542,342 Z" fill="#8a6040" stroke="#6a4820" stroke-width="0.5"/>
+        <!-- nostril -->
+        <circle cx="552" cy="341" r="0.8" fill="#3a2010" opacity="0.7"/>
+        <!-- legs -->
+        <line x1="520" y1="375" x2="516" y2="382" stroke="#6a4020" stroke-width="2.2" stroke-linecap="round"/>
+        <line x1="520" y1="382" x2="514" y2="382" stroke="#6a4020" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="528" y1="376" x2="524" y2="383" stroke="#6a4020" stroke-width="2.2" stroke-linecap="round"/>
+        <line x1="524" y1="383" x2="518" y2="383" stroke="#6a4020" stroke-width="1.8" stroke-linecap="round"/>
+        <!-- tail feather suggestion -->
+        <path d="M 510,366 Q 504,362 502,355" fill="none" stroke="#7a5030" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+      </g>
+      <text class="lbl" id="lbl-nz" x="526" y="388" text-anchor="middle" font-size="10" fill="#f0e8d0" font-family="sans-serif">紐西蘭</text>
+    </g>
+
+    <!-- hint text -->
+    <text class="hint-shimmer" x="360" y="165" text-anchor="middle" font-size="11" fill="rgba(200,230,255,0.42)" font-family="sans-serif" letter-spacing="0.12em">✦  點擊地標，開啟旅程  ✦</text>
+
+    </svg><!-- end world-svg -->
+
+    <!-- Drawer -->
+    <div id="drawer">
+      <div id="drawer-header">
+        <div id="drawer-title"></div>
+        <button id="drawer-close" onclick="closeDrawer()">✕</button>
+      </div>
+      <div class="trip-grid" id="trip-grid"></div>
+    </div>
+  </div><!-- end scene -->
+
+  <div class="hint-text">私人旅行紀錄庫 &nbsp;·&nbsp; 點擊地標探索行程</div>
+</div><!-- end main-view -->
+
+<!-- ── ADMIN TOGGLE ── -->
+<button id="admin-toggle" onclick="openAdmin()" title="後台管理">⚙</button>
+
+<!-- ── ADMIN VIEW ── -->
+<div id="admin-view">
+  <div class="admin-container">
+    <div class="admin-header">
+      <div class="admin-title">後台管理 <span>Travel Planner</span></div>
+      <button id="admin-close" onclick="closeAdmin()">← 返回地圖</button>
+    </div>
+
+    <div class="atabs">
+      <div class="atab active" onclick="switchAtab('dests')">地點管理</div>
+      <div class="atab" onclick="switchAtab('map')">地圖定位</div>
+      <div class="atab" onclick="switchAtab('export')">匯出設定</div>
+    </div>
+
+    <!-- destinations panel -->
+    <div class="apanel active" id="ap-dests">
+      <div class="dest-list" id="dest-list"></div>
+      <button class="btn primary sm" onclick="startAdd()">＋ 新增地點</button>
+      <div id="edit-area"></div>
+    </div>
+
+    <!-- map panel -->
+    <div class="apanel" id="ap-map">
+      <p class="map-hint">在「地點管理」選擇要編輯的地點，再點擊地球位置設定座標</p>
+      <div class="map-box" id="map-box">
+        <svg id="map-svg" viewBox="0 0 720 320" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="ms" cx="50%" cy="25%" r="75%">
+              <stop offset="0%" stop-color="#c5e8f8"/><stop offset="100%" stop-color="#1a4a7a"/>
+            </radialGradient>
+            <radialGradient id="me" cx="46%" cy="38%" r="62%">
+              <stop offset="0%" stop-color="#7ac94e"/><stop offset="55%" stop-color="#4a9030"/><stop offset="100%" stop-color="#245c14"/>
+            </radialGradient>
+          </defs>
+          <rect width="720" height="320" fill="url(#ms)"/>
+          <ellipse cx="360" cy="280" rx="258" ry="74" fill="#3a9ad9" opacity="0.8"/>
+          <ellipse cx="360" cy="268" rx="244" ry="65" fill="url(#me)"/>
+          <ellipse cx="215" cy="258" rx="76" ry="22" fill="#8cc84e" opacity="0.5"/>
+          <ellipse cx="488" cy="248" rx="82" ry="24" fill="#8cc84e" opacity="0.45"/>
+          <text x="360" y="170" text-anchor="middle" font-size="11" fill="rgba(200,230,255,0.5)" font-family="sans-serif">點擊地球上任意位置設定地標座標</text>
+          <g id="map-pins"></g>
+        </svg>
+      </div>
+      <div class="map-coord-out" id="map-coord-out"></div>
+      <div class="map-legend" id="map-legend"></div>
+    </div>
+
+    <!-- export panel -->
+    <div class="apanel" id="ap-export">
+      <div class="export-header">
+        <span>複製 JSON → 貼回頁面 destinations 變數以更新設定</span>
+        <button class="btn sm" onclick="copyExport()">複製</button>
+      </div>
+      <textarea id="export-code" readonly></textarea>
+      <div class="status-row">
+        <span id="exp-count"></span>
+        <span class="badge" id="exp-badge">ready</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   CONFIGURATION — edit this object to change
+   destinations without touching any other code
+═══════════════════════════════════════════ */
+let destinations = [
+  {
+    id: 'jp', name: '日本', icon: '🗻', color: '#e05050',
+    x: 492, y: 290,
+    trips: [
+      { name: '東京 5 天深度遊', url: 'japan/tokyo-5days.html' },
+      { name: '京都大阪 7 天',   url: 'japan/kyoto-osaka.html' },
+      { name: '北海道冬季行程', url: 'japan/hokkaido-winter.html' },
+      { name: '九州溫泉之旅',   url: 'japan/kyushu-onsen.html' }
+    ]
+  },
+  {
+    id: 'af', name: '非洲', icon: '🔺', color: '#d0a030',
+    x: 210, y: 342,
+    trips: [
+      { name: '撒哈拉沙漠探險',   url: 'africa/sahara.html' },
+      { name: '摩洛哥古城之旅',   url: 'africa/morocco.html' },
+      { name: '肯亞野生動物行程', url: 'africa/kenya.html' }
+    ]
+  },
+  {
+    id: 'eu', name: '歐洲', icon: '🗼', color: '#d07830',
+    x: 278, y: 286,
+    trips: [
+      { name: '西歐 14 天經典路線', url: 'europe/western-14days.html' },
+      { name: '義大利 10 天深度遊', url: 'europe/italy-10days.html' },
+      { name: '北歐三國行程',       url: 'europe/nordic.html' },
+      { name: '東歐文化之旅',       url: 'europe/eastern.html' }
+    ]
+  },
+  {
+    id: 'cn', name: '中國', icon: '🧱', color: '#50a060',
+    x: 356, y: 308,
+    trips: [
+      { name: '雲南大理麗江',  url: 'china/yunnan.html' },
+      { name: '四川成都行程',  url: 'china/sichuan.html' },
+      { name: '上海杭州 5 天', url: 'china/shanghai-hangzhou.html' }
+    ]
+  },
+  {
+    id: 'nz', name: '紐西蘭', icon: '🥝', color: '#8050c0',
+    x: 526, y: 358,
+    trips: [
+      { name: '南北島 12 天',     url: 'nz/both-islands.html' },
+      { name: '皇后鎮冒險之旅', url: 'nz/queenstown.html' },
+      { name: '奧克蘭文化週末', url: 'nz/auckland.html' }
+    ]
+  }
+];
+
+/* ── PASSWORD ── */
+const PASSWORD = 'travel'; // ← 修改密碼
+
+function checkPassword() {
+  const val = document.getElementById('gate-input').value;
+  if (val === PASSWORD) {
+    const gate = document.getElementById('gate');
+    gate.classList.add('hidden');
+    setTimeout(() => gate.remove(), 700);
+  } else {
+    const inp = document.getElementById('gate-input');
+    inp.classList.remove('shake');
+    void inp.offsetWidth;
+    inp.classList.add('shake');
+    inp.value = '';
+    setTimeout(() => inp.classList.remove('shake'), 400);
+  }
+}
+function skipGate() {
+  const gate = document.getElementById('gate');
+  gate.classList.add('hidden');
+  setTimeout(() => gate.remove(), 700);
+}
+document.getElementById('gate-input').addEventListener('keydown', e => { if (e.key === 'Enter') checkPassword(); });
+
+/* ── MAIN MAP ── */
+let currentDest = null;
+
+function openDest(id) {
+  if (currentDest === id) { closeDrawer(); return; }
+  if (currentDest) document.getElementById('lbl-' + currentDest)?.classList.remove('show');
+  currentDest = id;
+
+  const d = destinations.find(x => x.id === id);
+  if (!d) return;
+
+  document.getElementById('drawer-title').textContent = d.icon + '  ' + d.name + '  行程';
+
+  const grid = document.getElementById('trip-grid');
+  grid.innerHTML = '';
+  d.trips.forEach(t => {
+    const card = document.createElement('div');
+    card.className = 'trip-card';
+    const name = typeof t === 'string' ? t : t.name;
+    const url  = typeof t === 'object' && t.url ? t.url : '#';
+    card.innerHTML = `<span class="trip-dot" style="background:${d.color}"></span><a href="${url}">${name}</a><span class="trip-arrow">→</span>`;
+    grid.appendChild(card);
+  });
+
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('lbl-' + id)?.classList.add('show');
+}
+
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  if (currentDest) document.getElementById('lbl-' + currentDest)?.classList.remove('show');
+  currentDest = null;
+}
+
+// Hover labels on SVG landmarks
+['jp','af','eu','cn','nz'].forEach(id => {
+  const g   = document.getElementById('g-' + id);
+  const lbl = document.getElementById('lbl-' + id);
+  if (!g || !lbl) return;
+  g.addEventListener('mouseenter', () => { if (currentDest !== id) lbl.classList.add('show'); });
+  g.addEventListener('mouseleave', () => { if (currentDest !== id) lbl.classList.remove('show'); });
+});
+
+/* ── ADMIN ── */
+const ADMIN_PASSWORD = 'admin'; // ← 後台密碼
+let editingId = null;
+const COLORS = ['#e05050','#5080d0','#d07830','#50a060','#d0a030','#8050c0','#d04080','#30a0a0','#e07030','#6070d0','#c05020','#407840'];
+const ICONS   = ['🗻','🏯','🗼','🧱','🔺','🥝','🗽','🕌','⛩️','🏔️','🌋','🏝️','🏜️','🐉','🌸','🦁','🐨','🦘'];
+
+function openAdmin() {
+  const pw = prompt('請輸入後台密碼');
+  if (pw !== ADMIN_PASSWORD) { if (pw !== null) alert('密碼錯誤'); return; }
+  document.getElementById('admin-view').classList.add('open');
+  renderDestList();
+  updateExport();
+}
+function closeAdmin() {
+  document.getElementById('admin-view').classList.remove('open');
+  editingId = null;
+}
+
+function switchAtab(name) {
+  document.querySelectorAll('.atab').forEach((t, i) => {
+    const ns = ['dests','map','export'];
+    t.classList.toggle('active', ns[i] === name);
+  });
+  document.querySelectorAll('.apanel').forEach(p => p.classList.remove('active'));
+  document.getElementById('ap-' + name).classList.add('active');
+  if (name === 'map') renderMapPins();
+  if (name === 'export') updateExport();
+}
+
+function renderDestList() {
+  const el = document.getElementById('dest-list');
+  el.innerHTML = '';
+  destinations.forEach(d => {
+    const row = document.createElement('div');
+    row.className = 'dest-row' + (editingId === d.id ? ' editing' : '');
+    row.innerHTML = `
+      <div class="drag-h">⠿</div>
+      <div class="dest-name-cell">
+        <div class="dn">${d.icon} ${d.name}</div>
+        <div class="dm">${d.trips.length} 個行程</div>
+      </div>
+      <div class="coord-b">x: ${d.x}</div>
+      <div class="coord-b">y: ${d.y}</div>
+      <div class="color-dot-label"><div class="dot" style="background:${d.color}"></div><span>${d.color}</span></div>
+      <div class="row-acts">
+        <div class="btn-ic" onclick="startEdit('${d.id}')" title="編輯">✏️</div>
+        <div class="btn-ic danger" onclick="deleteDest('${d.id}')" title="刪除">🗑</div>
+      </div>`;
+    el.appendChild(row);
+  });
+}
+
+function renderEditForm(dest, isNew) {
+  const area = document.getElementById('edit-area');
+
+  const tripsHtml = (dest.trips || []).map((t, i) => {
+    const name = typeof t === 'string' ? t : t.name;
+    const url  = typeof t === 'object' ? (t.url || '') : '';
+    return `<div class="trip-entry">
+      <input type="text" value="${name}" placeholder="行程名稱" oninput="updateTripName('${dest.id}',${i},this.value)" style="flex:1;"/>
+      <input type="text" value="${url}" placeholder="連結路徑（選填）" class="trip-url" oninput="updateTripUrl('${dest.id}',${i},this.value)"/>
+      <button class="btn sm" onclick="removeTrip('${dest.id}',${i})">－</button>
+    </div>`;
+  }).join('');
+
+  const swatchesHtml = COLORS.map(c =>
+    `<div class="swatch${c===dest.color?' selected':''}" style="background:${c}" onclick="pickColor('${dest.id}','${c}')"></div>`
+  ).join('');
+
+  const iconsHtml = ICONS.map(ic =>
+    `<div class="icon-opt${ic===dest.icon?' selected':''}" onclick="pickIcon('${dest.id}','${ic}')">${ic}</div>`
+  ).join('');
+
+  area.innerHTML = `
+  <div class="edit-panel">
+    <h3>${isNew ? '新增地點' : '編輯：' + dest.name}</h3>
+    <div class="form-grid">
+      <div class="field"><label>地點名稱</label><input id="ef-name" value="${dest.name}" oninput="updateField('${dest.id}','name',this.value)"/></div>
+      <div class="field"><label>地點 ID（唯一，英文）</label><input value="${dest.id}" readonly style="opacity:0.4;"/></div>
+      <div class="field"><label>X 座標 (0–720)</label><input type="number" id="ef-x" value="${dest.x}" min="0" max="720" oninput="updateField('${dest.id}','x',+this.value)"/></div>
+      <div class="field"><label>Y 座標 (0–540)</label><input type="number" id="ef-y" value="${dest.y}" min="0" max="540" oninput="updateField('${dest.id}','y',+this.value)"/></div>
+      <div class="field form-full"><label>圖示</label><div class="icon-grid">${iconsHtml}</div></div>
+      <div class="field form-full"><label>顏色</label><div class="color-swatches">${swatchesHtml}</div></div>
+      <div class="field form-full">
+        <label>行程列表（名稱 + 連結路徑）</label>
+        <div id="trips-ed-${dest.id}">${tripsHtml}</div>
+        <button class="btn sm" style="margin-top:8px;" onclick="addTrip('${dest.id}')">＋ 新增行程</button>
+      </div>
+    </div>
+    <div style="margin-top:12px;font-size:11px;color:var(--text-dim);">
+      💡 切換到「地圖定位」頁籤，在地球上點擊可直接設定此地點的座標
+    </div>
+    <div class="form-actions">
+      <button class="btn" onclick="cancelEdit()">取消</button>
+      <button class="btn primary" onclick="saveEdit('${dest.id}')">儲存</button>
+    </div>
+  </div>`;
+}
+
+function genId() { return 'dest_' + Date.now().toString(36); }
+
+function startAdd() {
+  const nd = { id: genId(), name: '新地點', icon: '📍', color: COLORS[0], x: 360, y: 300, trips: [] };
+  destinations.push(nd);
+  editingId = nd.id;
+  renderDestList();
+  renderEditForm(nd, true);
+  renderMapPins();
+  updateExport();
+}
+
+function startEdit(id) {
+  editingId = id;
+  const d = destinations.find(x => x.id === id);
+  renderDestList();
+  renderEditForm(d, false);
+}
+
+function cancelEdit() {
+  editingId = null;
+  document.getElementById('edit-area').innerHTML = '';
+  renderDestList();
+}
+
+function saveEdit(id) {
+  editingId = null;
+  document.getElementById('edit-area').innerHTML = '';
+  renderDestList();
+  renderMapPins();
+  updateExport();
+}
+
+function updateField(id, field, val) {
+  const d = destinations.find(x => x.id === id);
+  if (d) d[field] = val;
+  renderMapPins();
+  updateExport();
+}
+
+function ensureTripObj(d, i) {
+  if (typeof d.trips[i] === 'string') d.trips[i] = { name: d.trips[i], url: '' };
+}
+function updateTripName(id, i, val) {
+  const d = destinations.find(x => x.id === id);
+  if (!d) return;
+  ensureTripObj(d, i);
+  d.trips[i].name = val;
+  updateExport();
+}
+function updateTripUrl(id, i, val) {
+  const d = destinations.find(x => x.id === id);
+  if (!d) return;
+  ensureTripObj(d, i);
+  d.trips[i].url = val;
+  updateExport();
+}
+
+function addTrip(id) {
+  const d = destinations.find(x => x.id === id);
+  if (d) { d.trips.push({ name: '', url: '' }); renderEditForm(d, false); }
+}
+
+function removeTrip(id, i) {
+  const d = destinations.find(x => x.id === id);
+  if (d) { d.trips.splice(i, 1); renderEditForm(d, false); updateExport(); }
+}
+
+function pickColor(id, color) {
+  const d = destinations.find(x => x.id === id);
+  if (d) { d.color = color; renderEditForm(d, false); renderMapPins(); updateExport(); }
+}
+
+function pickIcon(id, icon) {
+  const d = destinations.find(x => x.id === id);
+  if (d) { d.icon = icon; renderEditForm(d, false); renderDestList(); updateExport(); }
+}
+
+function deleteDest(id) {
+  if (!confirm('確定刪除「' + (destinations.find(x=>x.id===id)?.name||id) + '」？')) return;
+  destinations = destinations.filter(x => x.id !== id);
+  if (editingId === id) { editingId = null; document.getElementById('edit-area').innerHTML = ''; }
+  renderDestList(); renderMapPins(); updateExport();
+}
+
+/* ── MAP POSITIONING ── */
+function renderMapPins() {
+  const g = document.getElementById('map-pins');
+  if (!g) return;
+  g.innerHTML = '';
+  const leg = document.getElementById('map-legend');
+  if (leg) leg.innerHTML = '';
+
+  destinations.forEach(d => {
+    const px = d.x * (720/720);
+    const py = d.y * (320/540);
+
+    const pin = document.createElementNS('http://www.w3.org/2000/svg','g');
+    pin.setAttribute('transform', `translate(${px},${py})`);
+    pin.setAttribute('style','cursor:pointer;');
+    pin.setAttribute('data-id', d.id);
+    pin.innerHTML = `
+      <circle cx="0" cy="0" r="12" fill="${d.color}" opacity="0.18"/>
+      <circle cx="0" cy="0" r="6" fill="${d.color}"/>
+      <circle cx="0" cy="0" r="3" fill="white"/>
+      <text x="0" y="-13" text-anchor="middle" font-size="9.5" fill="white" font-family="sans-serif" opacity="0.85">${d.name}</text>`;
+    pin.onclick = () => { startEdit(d.id); switchAtab('dests'); };
+    g.appendChild(pin);
+
+    if (leg) {
+      const item = document.createElement('div');
+      item.className = 'map-leg-item';
+      item.innerHTML = `<div class="map-leg-dot" style="background:${d.color}"></div>${d.name} (${d.x}, ${d.y})`;
+      leg.appendChild(item);
+    }
+  });
+}
+
+function setupMapClick() {
+  const svg = document.getElementById('map-svg');
+  if (!svg) return;
+  svg.addEventListener('click', e => {
+    if (e.target.closest('[data-id]')) return;
+    const rect = svg.getBoundingClientRect();
+    const px = (e.clientX - rect.left) * (720 / rect.width);
+    const py = (e.clientY - rect.top)  * (320 / rect.height);
+    const rx = Math.round(px);
+    const ry = Math.round(py * (540/320));
+    const out = document.getElementById('map-coord-out');
+
+    if (editingId) {
+      const d = destinations.find(x => x.id === editingId);
+      if (d) {
+        d.x = rx; d.y = ry;
+        const xf = document.getElementById('ef-x');
+        const yf = document.getElementById('ef-y');
+        if (xf) xf.value = rx;
+        if (yf) yf.value = ry;
+        renderMapPins(); renderDestList(); updateExport();
+        if (out) out.textContent = `✓ 已更新「${d.name}」→ x: ${rx}, y: ${ry}`;
+      }
+    } else {
+      if (out) out.textContent = `座標：x = ${rx}, y = ${ry}  （請先在地點管理開啟編輯）`;
+    }
+  });
+}
+
+/* ── EXPORT ── */
+function updateExport() {
+  const code = JSON.stringify(destinations, null, 2);
+  const el = document.getElementById('export-code');
+  if (el) el.value = code;
+  const cnt = document.getElementById('exp-count');
+  if (cnt) cnt.textContent = destinations.length + ' 個地點';
+  const badge = document.getElementById('exp-badge');
+  if (badge) { badge.textContent = '已更新'; setTimeout(() => { badge.textContent = 'ready'; }, 1500); }
+}
+
+function copyExport() {
+  const el = document.getElementById('export-code');
+  if (!el) return;
+  navigator.clipboard.writeText(el.value).then(() => {
+    const badge = document.getElementById('exp-badge');
+    if (badge) { badge.textContent = '已複製！'; setTimeout(() => { badge.textContent = 'ready'; }, 2200); }
+  });
+}
+
+/* ── INIT ── */
+setupMapClick();
+</script>
+</body>
+</html>
