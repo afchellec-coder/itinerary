@@ -153,6 +153,21 @@ body {
   transition: color 0.15s;
 }
 #drawer-close:hover { color: var(--text-bright); }
+#drawer-nav { display: flex; align-items: center; gap: 10px; }
+#drawer-back {
+  background: none; border: 0.5px solid rgba(255,255,255,0.15);
+  border-radius: 5px; color: var(--text-dim); font-size: 12px;
+  padding: 4px 10px; cursor: pointer; font-family: var(--font-body);
+  transition: color 0.15s, border-color 0.15s; white-space: nowrap;
+}
+#drawer-back:hover { color: var(--text-bright); border-color: rgba(255,255,255,0.3); }
+#drawer-breadcrumb {
+  font-family: var(--font-display);
+  font-size: 20px; font-weight: 400;
+  color: var(--text-bright); letter-spacing: 0.04em;
+}
+#drawer-breadcrumb .bc-country { color: var(--accent); }
+#drawer-breadcrumb .bc-sep { color: var(--text-dim); margin: 0 6px; font-size: 16px; }
 .trip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
 .trip-card {
   background: var(--card-bg);
@@ -734,7 +749,11 @@ textarea#export-code {
     <!-- Drawer -->
     <div id="drawer">
       <div id="drawer-header">
-        <div id="drawer-title"></div>
+        <div id="drawer-nav">
+          <button id="drawer-back" onclick="drawerBack()" style="display:none;">← 返回</button>
+          <div id="drawer-title" style="display:none;"></div>
+          <div id="drawer-breadcrumb"></div>
+        </div>
         <button id="drawer-close" onclick="closeDrawer()">✕</button>
       </div>
       <div class="trip-grid" id="trip-grid"></div>
@@ -819,10 +838,26 @@ let destinations = [
     id: 'jp', name: '日本', icon: '🗻', color: '#e05050',
     x: 492, y: 290,
     trips: [
-      { name: '東京 5 天深度遊', url: 'japan/tokyo-5days.html' },
-      { name: '京都大阪 7 天',   url: 'japan/kyoto-osaka.html' },
-      { name: '北海道冬季行程', url: 'japan/hokkaido-winter.html' },
-      { name: '九州溫泉之旅',   url: 'japan/kyushu-onsen.html' }
+      {
+        name: '東京', icon: '🗼',
+        children: [
+          { name: '2026/06', url: 'japan/tokyo/202606/index.html' }
+        ]
+      },
+      {
+        name: '北海道', icon: '🏔️',
+        children: []
+      },
+      {
+        name: '九州', icon: '♨️',
+        children: [
+          { name: '2026/06', url: 'japan/kyushu/202606/index.html' }
+        ]
+      },
+      {
+        name: '大阪', icon: '🏯',
+        children: []
+      }
     ]
   },
   {
@@ -848,9 +883,18 @@ let destinations = [
     id: 'cn', name: '中國', icon: '🧱', color: '#50a060',
     x: 356, y: 308,
     trips: [
-      { name: '雲南大理麗江',  url: 'china/yunnan.html' },
-      { name: '四川成都行程',  url: 'china/sichuan.html' },
-      { name: '上海杭州 5 天', url: 'china/shanghai-hangzhou.html' }
+      {
+        name: '香港', icon: '🌃',
+        children: [
+          { name: '2026/06', url: 'china/hongkong/202606/index.html' }
+        ]
+      },
+      {
+        name: '蘇州', icon: '🌿',
+        children: [
+          { name: '2026/11', url: 'china/suzhou/202611/index.html' }
+        ]
+      }
     ]
   },
   {
@@ -891,36 +935,85 @@ document.getElementById('gate-input').addEventListener('keydown', e => { if (e.k
 
 /* ── MAIN MAP ── */
 let currentDest = null;
+let drawerStack = [];
 
 function openDest(id) {
   if (currentDest === id) { closeDrawer(); return; }
   if (currentDest) document.getElementById('lbl-' + currentDest)?.classList.remove('show');
   currentDest = id;
-
+  drawerStack = [];
   const d = destinations.find(x => x.id === id);
   if (!d) return;
+  renderDrawerLevel(d, null);
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('lbl-' + id)?.classList.add('show');
+}
 
-  document.getElementById('drawer-title').textContent = d.icon + '  ' + d.name + '  行程';
+function renderDrawerLevel(dest, tripItem) {
+  const color = dest.color;
+  const items = tripItem ? (tripItem.children || []) : dest.trips;
 
+  // breadcrumb
+  const bc = document.getElementById('drawer-breadcrumb');
+  if (bc) {
+    if (tripItem) {
+      bc.innerHTML = `<span class="bc-country">${dest.icon} ${dest.name}</span><span class="bc-sep">›</span>${tripItem.icon ? tripItem.icon + ' ' : ''}${tripItem.name}`;
+    } else {
+      bc.innerHTML = `<span class="bc-country">${dest.icon} ${dest.name}</span>`;
+    }
+  }
+
+  // back button
+  const backBtn = document.getElementById('drawer-back');
+  if (backBtn) backBtn.style.display = drawerStack.length > 0 ? 'inline-flex' : 'none';
+
+  // title (hidden, kept for compat)
+  const titleEl = document.getElementById('drawer-title');
+  if (titleEl) titleEl.textContent = tripItem ? dest.name + ' › ' + tripItem.name : dest.name;
+
+  // grid
   const grid = document.getElementById('trip-grid');
   grid.innerHTML = '';
-  d.trips.forEach(t => {
+
+  if (items.length === 0) {
+    grid.innerHTML = '<div style="color:var(--text-dim);font-size:13px;padding:8px 0;grid-column:1/-1;letter-spacing:0.06em;">尚無行程，敬請期待 ✦</div>';
+    return;
+  }
+
+  items.forEach(t => {
     const card = document.createElement('div');
     card.className = 'trip-card';
     const name = typeof t === 'string' ? t : t.name;
-    const url  = typeof t === 'object' && t.url ? t.url : '#';
-    card.innerHTML = `<span class="trip-dot" style="background:${d.color}"></span><a href="${url}">${name}</a><span class="trip-arrow">→</span>`;
+    const icon = (typeof t === 'object' && t.icon) ? t.icon + ' ' : '';
+    const isFolder = typeof t === 'object' && Array.isArray(t.children) && !t.url;
+    const url = typeof t === 'object' && t.url ? t.url : null;
+
+    if (isFolder) {
+      card.innerHTML = `<span class="trip-dot" style="background:${color}"></span>${icon}${name}<span class="trip-arrow">›</span>`;
+      card.onclick = () => {
+        drawerStack.push({ dest, tripItem });
+        renderDrawerLevel(dest, t);
+      };
+    } else if (url) {
+      card.innerHTML = `<span class="trip-dot" style="background:${color}"></span><a href="${url}">${icon}${name}</a><span class="trip-arrow">→</span>`;
+    } else {
+      card.innerHTML = `<span class="trip-dot" style="background:${color}"></span>${icon}${name}<span class="trip-arrow">→</span>`;
+    }
     grid.appendChild(card);
   });
+}
 
-  document.getElementById('drawer').classList.add('open');
-  document.getElementById('lbl-' + id)?.classList.add('show');
+function drawerBack() {
+  if (drawerStack.length === 0) return;
+  const prev = drawerStack.pop();
+  renderDrawerLevel(prev.dest, prev.tripItem);
 }
 
 function closeDrawer() {
   document.getElementById('drawer').classList.remove('open');
   if (currentDest) document.getElementById('lbl-' + currentDest)?.classList.remove('show');
   currentDest = null;
+  drawerStack = [];
 }
 
 // Hover labels on SVG landmarks
