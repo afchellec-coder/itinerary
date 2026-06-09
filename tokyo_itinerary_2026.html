@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>東京親子五日行程 2026</title>
+<style>
+  :root {
+    --cream: #FAF8F5;
+    --ink: #1C1C1A;
+    --ink-light: #6B6B67;
+    --accent: #C8704A;
+    --accent-light: #F5E8E1;
+    --border: rgba(0,0,0,0.09);
+    --card-bg: #FFFFFF;
+    --tag-bg: #F1EFE8;
+    --tag-text: #5F5E5A;
+    --day-pill: #1C1C1A;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Hiragino Sans', 'Noto Sans TC', system-ui, sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* HERO */
+  .hero {
+    background: var(--ink);
+    color: #FAF8F5;
+    padding: 64px 40px 56px;
+    text-align: center;
+  }
+  .hero-eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 20px;
+  }
+  .hero-title {
+    font-size: clamp(44px, 8vw, 80px);
+    font-weight: 300;
+    letter-spacing: 0.22em;
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+  .hero-sub {
+    font-size: 13px;
+    letter-spacing: 0.28em;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 40px;
+  }
+  .hero-meta {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+  .hero-meta-item { text-align: center; }
+  .hero-meta-label {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 4px;
+  }
+  .hero-meta-value {
+    font-size: 14px;
+    color: rgba(255,255,255,0.85);
+  }
+
+  /* FLIGHT SECTION */
+  .section {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 48px 24px;
+  }
+  .section-title {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .flight-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 600px) { .flight-grid { grid-template-columns: 1fr; } }
+  .flight-card {
+    background: var(--card-bg);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px;
+  }
+  .flight-dir {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 12px;
+  }
+  .flight-code {
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    margin-bottom: 14px;
+  }
+  .flight-route {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--ink-light);
+    margin-bottom: 14px;
+  }
+  .flight-route .arrow { color: var(--accent); }
+  .flight-details {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    font-size: 12px;
+    border-top: 0.5px solid var(--border);
+    padding-top: 12px;
+    margin-top: 4px;
+  }
+  .fd-label { color: var(--ink-light); margin-bottom: 2px; font-size: 10px; }
+  .fd-val { font-weight: 500; }
+
+  /* HOTEL */
+  .hotel-card {
+    background: var(--card-bg);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 24px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+  .hotel-icon {
+    width: 48px; height: 48px;
+    border-radius: 10px;
+    background: var(--accent-light);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 22px;
+  }
+  .hotel-name { font-size: 17px; font-weight: 500; margin-bottom: 4px; }
+  .hotel-addr { font-size: 12px; color: var(--ink-light); margin-bottom: 12px; }
+  .hotel-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .hotel-dates {
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--ink-light);
+  }
+
+  /* ITINERARY */
+  .itin-days { display: flex; flex-direction: column; gap: 32px; }
+  .day-block {}
+  .day-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .day-pill {
+    background: var(--ink);
+    color: #FAF8F5;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    padding: 5px 14px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .day-title {
+    font-size: 18px;
+    font-weight: 500;
+  }
+  .day-subtitle {
+    font-size: 12px;
+    color: var(--ink-light);
+  }
+
+  /* STOP LIST */
+  .stops { display: flex; flex-direction: column; gap: 0; }
+  .stop {
+    border: 0.5px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    background: var(--card-bg);
+    overflow: hidden;
+  }
+  .stop-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .stop-header:hover { background: #FAFAFA; }
+  .stop-time {
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 500;
+    min-width: 46px;
+    letter-spacing: 0.03em;
+  }
+  .stop-name {
+    font-size: 14px;
+    font-weight: 500;
+    flex: 1;
+  }
+  .stop-type {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    letter-spacing: 0.05em;
+  }
+  .stop-chevron {
+    font-size: 13px;
+    color: var(--ink-light);
+    transition: transform 0.2s;
+    margin-left: 4px;
+  }
+  .stop.open .stop-chevron { transform: rotate(180deg); }
+  .stop-body {
+    display: none;
+    padding: 0 16px 16px 16px;
+    border-top: 0.5px solid var(--border);
+    padding-top: 14px;
+  }
+  .stop.open .stop-body { display: block; }
+  .stop-detail {
+    font-size: 13px;
+    color: var(--ink-light);
+    line-height: 1.7;
+  }
+  .stop-detail p { margin-bottom: 6px; }
+  .stop-detail p:last-child { margin-bottom: 0; }
+  .stop-detail a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .stop-detail a:hover { text-decoration: underline; }
+  .detail-row {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+    margin-bottom: 5px;
+    font-size: 13px;
+  }
+  .detail-label {
+    color: var(--ink-light);
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    min-width: 48px;
+    flex-shrink: 0;
+  }
+  .detail-val { color: var(--ink); }
+  .cost-badge {
+    display: inline-block;
+    background: #EAF3DE;
+    color: #3B6D11;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+  .note {
+    background: #FFF8F4;
+    border-left: 2px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: #7A4530;
+    margin-top: 10px;
+    line-height: 1.6;
+  }
+
+  /* VIDEO EMBED */
+  .video-wrap {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+    border-radius: 8px;
+    margin-top: 10px;
+  }
+  .video-wrap iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    border: none;
+  }
+
+  /* DIVIDER */
+  .divider {
+    border: none;
+    border-top: 0.5px solid var(--border);
+    margin: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-eyebrow">Family Travel · 2026</div>
+  <div class="hero-title">東 京</div>
+  <div class="hero-sub">親 子 五 日 行 程</div>
+  <div class="hero-meta">
+    <div class="hero-meta-item">
+      <div class="hero-meta-label">日期</div>
+      <div class="hero-meta-value">7月12日 — 16日</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="hero-meta-label">成員</div>
+      <div class="hero-meta-value">2大 2小（6/7歲）</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="hero-meta-label">住宿</div>
+      <div class="hero-meta-value">台場希爾頓</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="hero-meta-label">航班</div>
+      <div class="hero-meta-value">長榮 BR192/191</div>
+    </div>
+  </div>
+</div>
+
+<!-- FLIGHT -->
+<div class="section">
+  <div class="section-title">班機資訊</div>
+  <div class="flight-grid">
+    <div class="flight-card">
+      <div class="flight-dir">去程 · Outbound</div>
+      <div class="flight-code">BR 192</div>
+      <div class="flight-route">
+        <span>TSA 台北松山</span>
+        <span class="arrow">→</span>
+        <span>HND 東京羽田</span>
+      </div>
+      <div style="font-size:11px;color:var(--ink-light);margin-bottom:8px;">3h 10m</div>
+      <div class="flight-details">
+        <div><div class="fd-label">日期</div><div class="fd-val">7/12 日</div></div>
+        <div><div class="fd-label">起飛</div><div class="fd-val">07:20</div></div>
+        <div><div class="fd-label">抵達</div><div class="fd-val">11:30</div></div>
+        <div style="grid-column:1/-1;"><div class="fd-label">航廈</div><div class="fd-val">T3</div></div>
+      </div>
+    </div>
+    <div class="flight-card">
+      <div class="flight-dir">回程 · Return</div>
+      <div class="flight-code">BR 191</div>
+      <div class="flight-route">
+        <span>HND 東京羽田</span>
+        <span class="arrow">→</span>
+        <span>TSA 台北松山</span>
+      </div>
+      <div style="font-size:11px;color:var(--ink-light);margin-bottom:8px;">3h 25m</div>
+      <div class="flight-details">
+        <div><div class="fd-label">日期</div><div class="fd-val">7/16 四</div></div>
+        <div><div class="fd-label">起飛</div><div class="fd-val">12:40</div></div>
+        <div><div class="fd-label">抵達</div><div class="fd-val">15:05</div></div>
+        <div style="grid-column:1/-1;"><div class="fd-label">航廈</div><div class="fd-val">T1</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- HOTEL -->
+<div class="section">
+  <div class="section-title">住宿</div>
+  <div class="hotel-card">
+    <div class="hotel-icon">🏨</div>
+    <div>
+      <div class="hotel-name">Hilton Tokyo Odaiba</div>
+      <div class="hotel-addr">〒135-8625 東京都江東区有明1-9-1</div>
+      <div class="hotel-tags">
+        <span class="tag">雙床房型</span>
+        <span class="tag">海灣景觀</span>
+        <span class="tag">游泳池</span>
+        <span class="tag">迪士尼接駁</span>
+      </div>
+      <div class="hotel-dates">入住 7月12日（日）&nbsp;·&nbsp;退房 7月16日（四）&nbsp;·&nbsp;共 4 晚</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ITINERARY -->
+<div class="section">
+  <div class="section-title">行程總覽</div>
+  <div class="itin-days">
+
+    <!-- D1 -->
+    <div class="day-block">
+      <div class="day-header">
+        <span class="day-pill">D1 · 7/12</span>
+        <div>
+          <div class="day-title">抵達東京 · 台場探索</div>
+          <div class="day-subtitle">羽田機場入境 → 飯店入住 → 周邊漫步</div>
+        </div>
+      </div>
+      <div class="stops">
+        <div class="stop">
+          <div class="stop-header" onclick="toggle(this)">
+            <span class="stop-time">11:30</span>
+            <span class="stop-name">抵達羽田機場 HND</span>
+            <span class="stop-type">交通</span>
+            <span class="stop-chevron">▾</span>
+          </div>
+          <div class="stop-body">
+            <div class="stop-detail">
+              <div class="detail-row"><span class="detail-label">航廈</span><span class="detail-val">國際線 T3</span></div>
+              <div class="detail-row"><span class="detail-label">建議</span><span class="detail-val">入境後辦理 SIM 卡 / Wi-Fi 分享器、換日圓</span></div>
+              <p>由羽田機場搭乘利木津巴士或京急線前往台場，車程約 40–60 分鐘。</p>
+            </div>
+          </div>
+        </div>
+        <div class="stop">
+          <div class="stop-header" onclick="toggle(this)">
+            <span class="stop-time">13:30</span>
+            <span class="stop-name">Hilton Tokyo Odaiba 飯店入住</span>
+            <span class="stop-type">住宿</span>
+            <span class="stop-chevron">▾</span>
+          </div>
+          <div class="stop-body">
+            <div class="stop-detail">
+              <div class="detail-row"><span class="detail-label">地址</span><span class="detail-val">東京都江東区有明1-9-1</span></div>
+              <p>安頓行李後，可先至飯店泳池讓孩子放鬆。</p>
+            </div>
+          </div>
+        </div>
+        <div class="stop">
+          <div class="stop-header" onclick="toggle(this)">
+            <span class="stop-time">15:30</span>
+            <span class="stop-name">台場海濱公園 &amp; 自由女神像</span>
+            <span class="stop-type">散步</span>
+            <span class="stop-chevron">▾</span>
+          </div>
+          <div class="stop-body">
+            <div class="stop-detail">
+              <p>欣賞彩虹橋與東京灣景色，傍晚可至 DECKS 商場用餐。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- D2 -->
+    <div class="day-block">
+      <div class="day-header">
+        <span class="day-pill">D2 · 7/13</span>
+        <div>
+          <div class="day-title">和服拍攝 · teamLab · 麻布台之丘</div>
+          <div class="day-subtitle">Hanakaya 和服攝影 → teamLab Borderless → 午餐 → 麻布台之丘</div>
+        </div>
+      </div>
+      <div class="stops">
+        <div class="stop">
+          <div class="stop-header" onclick="toggle(this)">
+            <span class="stop-time">10:00</span>
+            <span class="stop-name">Hanakaya 和服攝影</span>
+            <span class="stop-type">體驗</span>
+            <span class="stop-chevron">▾</span>
+          </div>
+          <div class="stop-body">
+            <div class="stop-detail">
+              <div class="detail-row"><span class="detail-label">費用</span><span class="detail-val"><span class="cost-badge">¥56,000（精修 10 張）</span></span></div>
+              <div class="detail-row"><span class="detail-label">時間</span><span class="detail-val">約 2 小時（不含化妝換裝）</span></div>
+              <div class="detail-row"><span class="detail-label">流程</span><span class="detail-val">造型換裝約 45 分鐘 → 10:00 開始拍攝至 11:00</span></div>
+              <div class="detail-row"><span class="detail-label">結束</span><span class="detail-val">11:30 拿照片 &amp; 換回原裝束</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="stop">
+          <div class="stop-header" onclick="toggle(this)">
+            <span class="stop-time">12:30</span>
+            <span class="stop-name">午餐 — Pork Factory</span>
+            <span class="stop-type">餐廳</span>
+            <span class="stop-chevron">▾</span>
+          </div>
+          <div class="stop-body">
+            <div class="stop-detail">
+              <div class="detail-row"><span class="detail-label">訂位</span><span class="detail-val">12:30</span></div>
+              <div class="detail-row"><span class="detail-label">特色</span><span class="detail-val">主打豬肉料理，親子友善，份量十足</span></div>
+              <div class="detail-row"><span class="detail-label">人均</span><span class="detail-val">約 ¥1,500–2,500</span></div>
+              <div class="detail-row"><span class="detail-label">地址</span><span class="detail-val">東京都港区麻布台</span></div>
+              <div class="note">💡 建議提早訂位，午間人氣高。可於 Google Maps 搜尋「Pork Factory 麻布台」確認最新資訊。</div>
+            </div>
+          </div>
+        </div>
+        <div class="stop">
+          <div class="stop-header" onclick="toggle(this)">
+            <span class="stop-time">14:00</span>
+            <span class="stop-name">麻布台之丘 Azabudai Hills 散步</span>
+            <span class="stop-type">購物 / 散步</span>
+            <span class="stop-chevron">▾</span>
+          </div>
+          <div class="stop-body">
+            <div class="stop-detail">
+              <div class="detail-row"><span class="detail-label">地址</span><span class="detail-val">東京都港区麻布台1丁目</span></div>
+              <p>2023 年底開幕的大型複合設施，結合商業、藝術與綠化空間。Aman 酒店進駐，Forest Plaza 中庭適合親子漫步。</p>
+            </div>
+          </div>
+        </div>
+        <div class="stop">
+          <div class="stop-header" onclick="toggle(this)">
+            <span class="stop-time">16:30</span>
+            <span class="stop-name">teamLab Borderless 東京</span>
+            <span class="stop-type">藝術</span>
+            <span class="stop-chevron">▾</span>
+          </div>
+          <div class="stop-body">
+            <div class="stop-detail">
+              <div class="detail-row"><span class="detail-label">官網</span><span class="detail-val"><a href="https://www.teamlab.art/zh-hant/e/tokyo/" target="_blank">teamlab.art/zh-hant/e/tokyo/ ↗</a></span></div>
+              <div class="detail-row"><span class="detail-label">門票</span><span class="detail-val"><span class="cost-badge">¥12,000 / 人</span></span></div>
+              <div class="detail-row"><span class="detail-label">地址</span><span class="detail-val">東京都江東区青海 1-3-8（麻布台Hills 內）</span></div>
+              <div class="detail-row"><span class="detail-label">建議</span><span class="detail-val">穿著深色服裝，效果更好；孩子需穿防滑鞋</span></div>
+              <div class="note">🎟 建議提前於官網購票，現場票可能售罄。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- D3 -->
+    <div class="day-block">
+      <div class="day-header">
+        <span class="day-pill">D3 · 7/14</span>
+        <div>
+          <div class="day-title">東京迪士尼樂園</div>
+          <div class="day-subtitle">地陪接送 → 全日迪士尼樂園</div>
+        </div>
+      </div>
+      <div class="stops">
+        <div class="stop">
+          <div class="stop-header" onclick="toggle(this)">
+            <span class="stop-time">全天</span>
+            <span class="stop-name">地陪服務</span>
+            <span class="stop-type">服務</span>
+            <span class="stop-chevron">▾</span>
+          </div>
+          <div class="stop-body">
+            <div class="stop-detail">
+              <div class="detail-row"><span class="detail-label">費用</span><span class="detail-val"><span class="cost-badge">¥12,000 / 8小時</span></span></div>
+              <p>專業地陪協助全日行程安排、交通導覽與翻譯協助。</p>
+            </div>
+          </div>
+        </div>
+        <div class="stop">
+          <div class="stop-header" onclick="toggle(this)">
+            <span class="stop-time">09:00</span>
+            <span class="stop-name">東京迪士尼樂園</span>
+            <span class="stop-type">主題樂園</span>
+            <span class="stop-chevron">▾</span>
+          </div>
+          <div class="stop-body">
+            <div class="stop-detail">
+              <div class="detail-row"><span class="detail-label">官網</span><span class="detail-val"><a href="https://www.tokyodisneyresort.jp/tc/" target="_blank">tokyodisneyresort.jp ↗</a></span></div>
+              <div class="detail-row"><span class="detail-label">地址</span><span class="detail-val">千葉県浦安市舞浜1-1</span></div>
+              <div class="detail-row"><span class="detail-label">開放</span><span class="detail-val">通常 08:00–22:00（請確認當日時刻）</span></div>
+              <div class="detail-row"><span class="detail-label">建議</span><span class="detail-val">提前下載官方 App，善用 DPA（Disney Premier Access）</span></div>
+              <div class="note">🎠 孩子必玩：小熊維尼獵蜂記、太空山、幽靈公館、「it's a small world」</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- D4 -->
+    <div class="day-block">
+      <div class="day-header">
+        <span class="day-pill">D4 · 7/15</span>
+        <div>
+          <div class="day-title">樂高探索中心 · 台場下午 · 郵輪晚餐</div>
+          <div class="day-subtitle">LEGOLAND → 台場逛街 / 景點 → Symphony Tokyo Bay Cruise（含晚餐）</div>
+        </div>
+      </div>
+      <div class="stops">
+        <div class="stop">
+          <div class="stop-header" onclick="toggle(this)">
+            <span class="stop-time">10:00</span>
+            <span class="stop-name">LEGOLAND Discovery Center Tokyo</span>
+            <span class="stop-type">親子</span>
+            <span class="stop-chevron">▾</span>
+          </div>
+          <div class="stop-body">
+            <div class="stop-detail">
+              <div class="detail-row"><span class="detail-label">官網</span><span class="detail-val"><a href="https://www.legolanddiscoverycenter.com/tokyo/en/" target="_blank">legolanddiscoverycenter.com/tokyo ↗</a></span></div>
+              <div class="detail-row"><span class="detail-label">地址</span><span class="detail-val">東京都江東区有明3-1-8 ダイバーシティ東京 プラザ 2F</span></div>
+              <div class="detail-row"><span class="detail-label">開放</span><span class="detail-val">10:00–18:00</span></div>
+              <div class="detail-row"><span class="detail-label">建議</span><span class="detail-val">適合 3–10 歲，含 4D 電影、積木工坊、小賽車</span></div>
+              <div class="note">🎟 建議提前線上購票，現場票較貴且可能排隊。</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stop">
+          <div class="stop-header" onclick="toggle(this)">
+            <span class="stop-time">13:00</span>
+            <span class="stop-name">午餐 — 台場 DECKS Tokyo Beach</span>
+            <span class="stop-type">餐廳</span>
+            <span class="stop-chevron">▾</span>
+          </div>
+          <div class="stop-body">
+            <div class="stop-detail">
+              <div class="detail-row"><span class="detail-label">地址</span><span class="detail-val">東京都港区台場1-6-1（百合海鷗線台場站步行 2 分鐘）</span></div>
+              <p>多種料理選擇，含日式、洋食、拉麵等，適合親子用餐。3F 台場小香港特別推薦。</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="stop">
+          <div class="stop-header" onclick="toggle(this)">
+            <span class="stop-time">14:00</span>
+            <span class="stop-name">台場下午推薦景點（擇一或組合）</span>
+            <span class="stop-type">散步 / 購物</span>
+            <span class="stop-chevron">▾</span>
+          </div>
+          <div class="stop-body">
+            <div class="stop-detail">
+              <div style="display:flex;flex-direction:column;gap:14px;margin-top:4px;">
+
+                <div style="border:0.5px solid var(--border);border-radius:8px;padding:12px 14px;">
+                  <div style="font-size:13px;font-weight:500;margin-bottom:6px;">① DiverCity Tokyo Plaza — 鋼彈立像</div>
+                  <div class="detail-row"><span class="detail-label">地址</span><span class="detail-val">東京都江東区青海1-1-10</span></div>
+                  <div class="detail-row"><span class="detail-label">亮點</span><span class="detail-val">1:1 比例鋼彈立像（免費參觀），Gundam Base 購物，孩子超興奮</span></div>
+                  <div class="detail-row"><span class="detail-label">步行</span><span class="detail-val">距 LEGOLAND 約 5 分鐘</span></div>
+                </div>
+
+                <div style="border:0.5px solid var(--border);border-radius:8px;padding:12px 14px;">
+                  <div style="font-size:13px;font-weight:500;margin-bottom:6px;">② 台場海濱公園 &amp; 自由女神像</div>
+                  <div class="detail-row"><span class="detail-label">地址</span><span class="detail-val">東京都港区台場1丁目（台場站步行 5 分鐘）</span></div>
+                  <div class="detail-row"><span class="detail-label">亮點</span><span class="detail-val">彩虹橋全景、沙灘散步，傍晚夕陽景色絕佳，免費入場</span></div>
+                  <div class="detail-row"><span class="detail-label">建議</span><span class="detail-val">15:00–17:00 光線最美，適合拍照留念</span></div>
+                </div>
+
+                <div style="border:0.5px solid var(--border);border-radius:8px;padding:12px 14px;">
+                  <div style="font-size:13px;font-weight:500;margin-bottom:6px;">③ 富士電視台球形瞭望台</div>
+                  <div class="detail-row"><span class="detail-label">地址</span><span class="detail-val">東京都港区台場2-4-8</span></div>
+                  <div class="detail-row"><span class="detail-label">亮點</span><span class="detail-val">球型瞭望台 25F 俯瞰台場全景，大人 ¥700 / 小學生以下 ¥450</span></div>
+                  <div class="detail-row"><span class="detail-label">開放</span><span class="detail-val">10:00–18:00（週一休館）</span></div>
+                </div>
+
+                <div style="border:0.5px solid var(--border);border-radius:8px;padding:12px 14px;">
+                  <div style="font-size:13px;font-weight:500;margin-bottom:6px;">④ Aqua City Odaiba 購物</div>
+                  <div class="detail-row"><span class="detail-label">地址</span><span class="detail-val">東京都港区台場1-7-1</span></div>
+                  <div class="detail-row"><span class="detail-label">亮點</span><span class="detail-val">面海購物中心，頂層有神社（台場稻荷神社），手信選購好地方</span></div>
+                  <div class="detail-row"><span class="detail-label">開放</span><span class="detail-val">11:00–21:00</span></div>
+                </div>
+
+              </div>
+              <div class="note" style="margin-top:14px;">💡 建議組合：鋼彈立像（30分）→ 台場海濱公園散步（60分）→ Aqua City 買伴手禮（60分），剛好接上郵輪出發。</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stop">
+          <div class="stop-header" onclick="toggle(this)">
+            <span class="stop-time">18:30</span>
+            <span class="stop-name">前往竹芝碼頭</span>
+            <span class="stop-type">交通</span>
+            <span class="stop-chevron">▾</span>
+          </div>
+          <div class="stop-body">
+            <div class="stop-detail">
+              <div class="detail-row"><span class="detail-label">方式</span><span class="detail-val">由台場搭百合海鷗線至新橋，轉 JR 至濱松町，步行約 7 分鐘至竹芝碼頭</span></div>
+              <div class="detail-row"><span class="detail-label">車程</span><span class="detail-val">約 25–30 分鐘</span></div>
+              <div class="note">🚢 建議出發前 30 分鐘抵達碼頭，辦理登船手續。</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stop">
+          <div class="stop-header" onclick="toggle(this)">
+            <span class="stop-time">19:30</span>
+            <span class="stop-name">Symphony Tokyo Bay Cruise 東京灣夜遊（含晚餐）</span>
+            <span class="stop-type">晚餐 / 體驗</span>
+            <span class="stop-chevron">▾</span>
+          </div>
+          <div class="stop-body">
+            <div class="stop-detail">
+              <div class="detail-row"><span class="detail-label">官網</span><span class="detail-val"><a href="https://www.symphony-cruise.co.jp/" target="_blank">symphony-cruise.co.jp ↗</a></span></div>
+              <div class="detail-row"><span class="detail-label">出發地</span><span class="detail-val">竹芝旅客船碼頭（JR 濱松町步行約 7 分鐘）</span></div>
+              <div class="detail-row"><span class="detail-label">時長</span><span class="detail-val">約 2 小時</span></div>
+              <div class="detail-row"><span class="detail-label">餐飲</span><span class="detail-val">船上提供法式 / 和洋料理晚餐套餐，另有酒吧服務</span></div>
+              <p style="margin-top:8px;">欣賞彩虹橋、東京灣夜景，船上直接用晚餐，是旅程最浪漫的收尾。</p>
+              <div style="margin-top:12px;">
+                <div class="detail-label" style="margin-bottom:6px;">參考影片（親子版）</div>
+                <a href="https://www.youtube.com/watch?v=Uz0_5tN8hhg" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:#F5E8E1;color:#7A4530;padding:8px 14px;border-radius:8px;font-size:13px;text-decoration:none;">
+                  ▶ 觀看 YouTube 影片
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- D5 -->
+    <div class="day-block">
+      <div class="day-header">
+        <span class="day-pill">D5 · 7/16</span>
+        <div>
+          <div class="day-title">退房 · 返台</div>
+          <div class="day-subtitle">飯店退房 → 羽田機場 → 台北松山</div>
+        </div>
+      </div>
+      <div class="stops">
+        <div class="stop">
+          <div class="stop-header" onclick="toggle(this)">
+            <span class="stop-time">上午</span>
+            <span class="stop-name">飯店退房 &amp; 行李整理</span>
+            <span class="stop-type">交通</span>
+            <span class="stop-chevron">▾</span>
+          </div>
+          <div class="stop-body">
+            <div class="stop-detail">
+              <p>退房時間通常為 12:00，可寄放行李後至附近最後巡禮。</p>
+            </div>
+          </div>
+        </div>
+        <div class="stop">
+          <div class="stop-header" onclick="toggle(this)">
+            <span class="stop-time">10:30</span>
+            <span class="stop-name">前往羽田機場</span>
+            <span class="stop-type">交通</span>
+            <span class="stop-chevron">▾</span>
+          </div>
+          <div class="stop-body">
+            <div class="stop-detail">
+              <div class="detail-row"><span class="detail-label">航廈</span><span class="detail-val">T1（國際線）</span></div>
+              <div class="detail-row"><span class="detail-label">建議</span><span class="detail-val">起飛前 2.5 小時抵達，含安檢與登機手續</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="stop">
+          <div class="stop-header" onclick="toggle(this)">
+            <span class="stop-time">12:40</span>
+            <span class="stop-name">BR 191 起飛 → 台北松山 15:05</span>
+            <span class="stop-type">航班</span>
+            <span class="stop-chevron">▾</span>
+          </div>
+          <div class="stop-body">
+            <div class="stop-detail">
+              <div class="detail-row"><span class="detail-label">航程</span><span class="detail-val">約 3 小時 25 分鐘</span></div>
+              <div class="detail-row"><span class="detail-label">抵達</span><span class="detail-val">台北松山 15:05</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end itin-days -->
+</div>
+
+<hr class="divider">
+
+<!-- 用車資訊 -->
+<div class="section">
+  <div class="section-title">用車資訊</div>
+
+  <div style="display:flex;flex-direction:column;gap:10px;">
+
+    <div style="background:#FFF8F4;border:0.5px solid #EDD5C5;border-radius:10px;padding:14px 18px;">
+      <div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#9A5535;margin-bottom:10px;">台灣段</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:flex-start;gap:12px;font-size:13px;">
+          <span style="background:#C8704A;color:#fff;font-size:10px;font-weight:500;padding:2px 8px;border-radius:10px;white-space:nowrap;margin-top:1px;">去程</span>
+          <span style="color:var(--ink);">台灣住家 → 台北松山機場（7/12 出發，請安排合適時間）</span>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:12px;font-size:13px;">
+          <span style="background:#C8704A;color:#fff;font-size:10px;font-weight:500;padding:2px 8px;border-radius:10px;white-space:nowrap;margin-top:1px;">回程</span>
+          <span style="color:var(--ink);">台北松山機場 → 台灣住家（7/16 抵達 15:05，請安排接機用車）</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--card-bg);border:0.5px solid var(--border);border-radius:10px;overflow:hidden;">
+      <div style="padding:10px 18px 8px;background:var(--tag-bg);border-bottom:0.5px solid var(--border);">
+        <span style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-light);">日本段</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+          <tr style="border-bottom:0.5px solid var(--border);">
+            <th style="text-align:left;padding:10px 18px;font-size:10px;letter-spacing:0.08em;font-weight:500;color:var(--ink-light);width:60px;">日期</th>
+            <th style="text-align:left;padding:10px 18px;font-size:10px;letter-spacing:0.08em;font-weight:500;color:var(--ink-light);">安排</th>
+            <th style="text-align:left;padding:10px 18px;font-size:10px;letter-spacing:0.08em;font-weight:500;color:var(--ink-light);width:100px;">備註</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:0.5px solid var(--border);">
+            <td style="padding:12px 18px;font-weight:500;white-space:nowrap;">D1 · 7/12</td>
+            <td style="padding:12px 18px;color:var(--ink);">接機：羽田機場 HND → Hilton Tokyo Odaiba</td>
+            <td style="padding:12px 18px;color:var(--ink-light);">抵達 11:30，T3</td>
+          </tr>
+          <tr style="border-bottom:0.5px solid var(--border);">
+            <td style="padding:12px 18px;font-weight:500;white-space:nowrap;">D2 · 7/13</td>
+            <td style="padding:12px 18px;color:var(--ink);">包車全天（10 小時）</td>
+            <td style="padding:12px 18px;color:var(--ink-light);">Hanakaya → Pork Factory → 麻布台之丘 → teamLab</td>
+          </tr>
+          <tr style="border-bottom:0.5px solid var(--border);">
+            <td style="padding:12px 18px;font-weight:500;white-space:nowrap;">D3 · 7/14</td>
+            <td style="padding:12px 18px;color:var(--ink);">使用飯店接駁車往返迪士尼</td>
+            <td style="padding:12px 18px;color:var(--ink-light);">請向飯店確認班次時刻</td>
+          </tr>
+          <tr style="border-bottom:0.5px solid var(--border);">
+            <td style="padding:12px 18px;font-weight:500;white-space:nowrap;">D4 · 7/15</td>
+            <td style="padding:12px 18px;color:var(--ink-light);font-style:italic;">本日無用車安排</td>
+            <td style="padding:12px 18px;color:var(--ink-light);">台場地區步行 / 百合海鷗線</td>
+          </tr>
+          <tr>
+            <td style="padding:12px 18px;font-weight:500;white-space:nowrap;">D5 · 7/16</td>
+            <td style="padding:12px 18px;color:var(--ink);">送機：Hilton Tokyo Odaiba → 羽田機場 HND</td>
+            <td style="padding:12px 18px;color:var(--ink-light);">起飛 12:40，T1，建議 10:00 出發</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- 訂票資訊 -->
+<div class="section">
+  <div class="section-title">訂票 &amp; 預約清單</div>
+
+  <div style="display:flex;flex-direction:column;gap:8px;">
+
+    <div class="stop">
+      <div class="stop-header" onclick="toggle(this)">
+        <span style="font-size:12px;font-weight:500;color:var(--accent);min-width:20px;">1</span>
+        <span class="stop-name">Hanakaya 和服攝影 預約</span>
+        <span class="stop-type">體驗</span>
+        <span class="stop-chevron">▾</span>
+      </div>
+      <div class="stop-body">
+        <div class="stop-detail">
+          <div class="detail-row"><span class="detail-label">日期</span><span class="detail-val">D2 · 7/13（10:00 開始）</span></div>
+          <div class="detail-row"><span class="detail-label">費用</span><span class="detail-val"><span class="cost-badge">¥56,000（精修 10 張）</span></span></div>
+          <div class="detail-row"><span class="detail-label">人數</span><span class="detail-val">2大 2小</span></div>
+          <div class="note">📌 請提前聯繫 Hanakaya 確認 7/13 早上檔期，並確認換裝尺寸。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stop">
+      <div class="stop-header" onclick="toggle(this)">
+        <span style="font-size:12px;font-weight:500;color:var(--accent);min-width:20px;">2</span>
+        <span class="stop-name">Pork Factory 午餐訂位</span>
+        <span class="stop-type">餐廳</span>
+        <span class="stop-chevron">▾</span>
+      </div>
+      <div class="stop-body">
+        <div class="stop-detail">
+          <div class="detail-row"><span class="detail-label">日期</span><span class="detail-val">D2 · 7/13（12:30）</span></div>
+          <div class="detail-row"><span class="detail-label">人數</span><span class="detail-val">2大 2小（共 4 位）</span></div>
+          <div class="note">📌 建議聯繫 AE 協助安排訂位，或透過 Tablecheck / Tabelog 預約。午間座位緊張，請提早確認。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stop">
+      <div class="stop-header" onclick="toggle(this)">
+        <span style="font-size:12px;font-weight:500;color:var(--accent);min-width:20px;">3</span>
+        <span class="stop-name">teamLab Borderless 門票</span>
+        <span class="stop-type">藝術</span>
+        <span class="stop-chevron">▾</span>
+      </div>
+      <div class="stop-body">
+        <div class="stop-detail">
+          <div class="detail-row"><span class="detail-label">日期</span><span class="detail-val">D2 · 7/13（16:30 入場）</span></div>
+          <div class="detail-row"><span class="detail-label">費用</span><span class="detail-val"><span class="cost-badge">¥12,000 / 人</span>（2大 2小共 ¥48,000）</span></div>
+          <div class="detail-row"><span class="detail-label">官網</span><span class="detail-val"><a href="https://www.teamlab.art/zh-hant/e/tokyo/" target="_blank">teamlab.art/zh-hant/e/tokyo/ ↗</a></span></div>
+          <div class="note">📌 請於官網選定時段購票，熱門日期易售罄，建議盡早購買。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stop">
+      <div class="stop-header" onclick="toggle(this)">
+        <span style="font-size:12px;font-weight:500;color:var(--accent);min-width:20px;">4</span>
+        <span class="stop-name">迪士尼地陪服務 安排</span>
+        <span class="stop-type">服務</span>
+        <span class="stop-chevron">▾</span>
+      </div>
+      <div class="stop-body">
+        <div class="stop-detail">
+          <div class="detail-row"><span class="detail-label">日期</span><span class="detail-val">D3 · 7/14（全天）</span></div>
+          <div class="detail-row"><span class="detail-label">費用</span><span class="detail-val"><span class="cost-badge">¥12,000 / 8小時</span></span></div>
+          <div class="note">📌 請確認地陪是否包含隨行導覽、語言協助及預約加速通關服務。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stop">
+      <div class="stop-header" onclick="toggle(this)">
+        <span style="font-size:12px;font-weight:500;color:var(--accent);min-width:20px;">5</span>
+        <span class="stop-name">東京迪士尼樂園 門票</span>
+        <span class="stop-type">主題樂園</span>
+        <span class="stop-chevron">▾</span>
+      </div>
+      <div class="stop-body">
+        <div class="stop-detail">
+          <div class="detail-row"><span class="detail-label">日期</span><span class="detail-val">D3 · 7/14</span></div>
+          <div class="detail-row"><span class="detail-label">人數</span><span class="detail-val">2大 2小</span></div>
+          <div class="detail-row"><span class="detail-label">官網</span><span class="detail-val"><a href="https://www.tokyodisneyresort.jp/tc/" target="_blank">tokyodisneyresort.jp ↗</a></span></div>
+          <div class="note">📌 7月為暑假旺季，門票需提前於官網購買指定日期入園票，請確認是否附加 DPA 加速通關。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stop">
+      <div class="stop-header" onclick="toggle(this)">
+        <span style="font-size:12px;font-weight:500;color:var(--accent);min-width:20px;">6</span>
+        <span class="stop-name">LEGOLAND Discovery Center 門票</span>
+        <span class="stop-type">親子</span>
+        <span class="stop-chevron">▾</span>
+      </div>
+      <div class="stop-body">
+        <div class="stop-detail">
+          <div class="detail-row"><span class="detail-label">日期</span><span class="detail-val">D4 · 7/15（10:00）</span></div>
+          <div class="detail-row"><span class="detail-label">人數</span><span class="detail-val">2大 2小</span></div>
+          <div class="detail-row"><span class="detail-label">官網</span><span class="detail-val"><a href="https://www.legolanddiscoverycenter.com/tokyo/en/" target="_blank">legolanddiscoverycenter.com/tokyo ↗</a></span></div>
+          <div class="note">📌 線上票優惠較多，建議提前購買，現場票可能需排隊。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stop">
+      <div class="stop-header" onclick="toggle(this)">
+        <span style="font-size:12px;font-weight:500;color:var(--accent);min-width:20px;">7</span>
+        <span class="stop-name">Symphony Tokyo Bay Cruise 郵輪晚餐</span>
+        <span class="stop-type">晚餐 / 體驗</span>
+        <span class="stop-chevron">▾</span>
+      </div>
+      <div class="stop-body">
+        <div class="stop-detail">
+          <div class="detail-row"><span class="detail-label">日期</span><span class="detail-val">D4 · 7/15（19:30 出發）</span></div>
+          <div class="detail-row"><span class="detail-label">人數</span><span class="detail-val">2大 2小</span></div>
+          <div class="detail-row"><span class="detail-label">官網</span><span class="detail-val"><a href="https://www.symphony-cruise.co.jp/" target="_blank">symphony-cruise.co.jp ↗</a></span></div>
+          <div class="detail-row"><span class="detail-label">出發地</span><span class="detail-val">竹芝旅客船碼頭（JR 濱松町步行 7 分鐘）</span></div>
+          <div class="note">📌 晚餐郵輪需提前預約套餐，請確認餐飲方案（法式 / 和洋料理），並備註有兒童同行。</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="margin-top:20px;background:#F0F6FF;border:0.5px solid #B5D4F4;border-radius:10px;padding:14px 18px;">
+    <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#185FA5;margin-bottom:8px;">注意事項</div>
+    <div style="font-size:12px;color:#185FA5;line-height:1.8;">
+      • 以上票務建議在出發前 4–6 週完成預訂，7月為日本暑假旺季<br>
+      • 部分項目（teamLab、迪士尼）需指定日期入場，請對準行程日期購買<br>
+      • 兒童票價依年齡／身高不同，購票前請確認孩子的年齡資格<br>
+      • 郵輪及餐廳訂位請備註有幼童同行，並確認菜單是否適合小朋友
+    </div>
+  </div>
+
+</div>
+
+<div style="text-align:center;padding:32px 24px 48px;font-size:11px;color:var(--ink-light);letter-spacing:0.1em;">
+  東京親子五日行程 · 7月12–16日 · 2026
+</div>
+
+<script>
+function toggle(header) {
+  const stop = header.closest('.stop');
+  stop.classList.toggle('open');
+}
+</script>
+
+</body>
+</html>
